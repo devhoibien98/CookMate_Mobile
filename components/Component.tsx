@@ -1,10 +1,11 @@
 import { LinearGradient } from "expo-linear-gradient";
-import * as React from "react";
-import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
-const HEADER_HEIGHT = 200; 
+const HEADER_HEIGHT = 200;
+
 interface CombineLayoutProps {
   children?: React.ReactNode;
 }
@@ -27,9 +28,15 @@ const CombineLayout: React.FC<CombineLayoutProps> = ({ children }) => {
           <Text style={styles.cookmate}>CookMate</Text>
         </LinearGradient>
       </View>
-      <View style={styles.body}>
-        {children}
-      </View>
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.body}>
+          {children}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -40,26 +47,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   headerContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
     width: "100%",
     height: HEADER_HEIGHT,
-    overflow: "hidden",
-    // borderBottomLeftRadius: 24,
-    // borderBottomRightRadius: 24,
+    zIndex: 0,
   },
   gradient: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // borderBottomLeftRadius: 24,
-    // borderBottomRightRadius: 24,
     width: "100%",
     height: "100%",
-    position: "relative",
   },
   iconOverlay: {
     position: "absolute",
     width: "100%",
-    // height: "100%",
     top: 0,
     left: 0,
     zIndex: 1,
@@ -70,19 +74,21 @@ const styles = StyleSheet.create({
     fontFamily: "JosefinSans-Regular",
     textAlign: "center",
     zIndex: 2,
-    marginTop: 0, 
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
     position: "relative",
   },
+  scrollContent: {
+    paddingTop: HEADER_HEIGHT - 40, 
+    paddingBottom: 100,
+  },
   body: {
-    flex: 1,
     backgroundColor: "#fff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    marginTop: -24,
+    zIndex: 1,
   },
 });
 
-export default CombineLayout; 
+export default CombineLayout;
