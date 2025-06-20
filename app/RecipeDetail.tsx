@@ -1,11 +1,9 @@
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import * as React from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const RecipeDetail = () => {
   return (
-    <SafeAreaView style={styles.container}>
       <ScrollView>
         <Image style={styles.image} resizeMode="cover" source={require("../assets/images/recipedetail.png")} />
 
@@ -66,12 +64,10 @@ const RecipeDetail = () => {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
   image: { width: "100%", height: 220 },
   cardIntro: {
     backgroundColor: "#fff",
