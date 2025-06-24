@@ -14,8 +14,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#fe8300", 
-        tabBarInactiveTintColor: "black", 
+        tabBarActiveTintColor: "#fe8300",
+        tabBarInactiveTintColor: "black",
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -64,6 +64,16 @@ export default function TabLayout() {
           title: "Profile",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="person" size={28} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="favourite"
+        options={{
+          title: "Favourite",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="favorite" size={28} color={color} />
           ),
         }}
       />

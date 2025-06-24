@@ -1,69 +1,76 @@
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import * as React from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import FavoriteButton from '@/components/FavoriteButton';
 
 const RecipeDetail = () => {
+  const [isFavorite, setIsFavorite] = React.useState(false);
+
   return (
-      <ScrollView>
-        <Image style={styles.image} resizeMode="cover" source={require("../assets/images/recipedetail.png")} />
+    <ScrollView>
+      <Image style={styles.image} resizeMode="cover" source={require("../assets/images/recipedetail.png")} />
 
-        {/* Card Intro */}
-        <View style={styles.cardIntro}>
-          <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-            <View style={{flex: 1}}>
-              <Text style={styles.title}>The Fluffiest Vegan Pancakes</Text>
-              <Text style={styles.subtitle}>You have all the ingredients</Text>
-              <View style={{flexDirection: "row", alignItems: "center", marginTop: 8}}>
-                <FontAwesome name="star" size={18} color="#FFD700" />
-                <FontAwesome name="star" size={18} color="#FFD700" />
-                <FontAwesome name="star" size={18} color="#FFD700" />
-                <FontAwesome name="star" size={18} color="#FFD700" />
-                <FontAwesome name="star" size={18} color="#eee" />
-                <Feather name="clock" size={16} color="#888" style={{marginLeft: 16}} />
-                <Text style={styles.timeText}>8 mins</Text>
-              </View>
+      {/* Card Intro */}
+      <View style={styles.cardIntro}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title}>The Fluffiest Vegan Pancakes</Text>
+            <Text style={styles.subtitle}>You have all the ingredients</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}>
+              <FontAwesome name="star" size={18} color="#FFD700" />
+              <FontAwesome name="star" size={18} color="#FFD700" />
+              <FontAwesome name="star" size={18} color="#FFD700" />
+              <FontAwesome name="star" size={18} color="#FFD700" />
+              <FontAwesome name="star" size={18} color="#eee" />
+              <Feather name="clock" size={16} color="#888" style={{ marginLeft: 16 }} />
+              <Text style={styles.timeText}>8 mins</Text>
             </View>
-            <FontAwesome name="heart-o" size={22} color="#888" />
           </View>
+          <FavoriteButton
+            isFavorite={isFavorite}
+            onPress={() => setIsFavorite(fav => !fav)}
+            style={{ marginLeft: 8 }}
+          />
         </View>
+      </View>
 
-        {/* Ingredients */}
-        <Text style={styles.sectionTitle}>Ingredients</Text>
-        <View style={styles.ingredientTable}>
-          {[
-            ["flour", "125g"],
-            ["organic sugar", "2 tablespoons"],
-            ["baking powder", "1 tablespoon"],
-            ["salt", "1/2 teaspoon"],
-            ["non-diary milk", "240ml  mL"]
-          ].map(([name, value], idx, arr) => (
-            <View key={name} style={[styles.ingredientRow, idx < arr.length-1 && styles.ingredientRowBorder]}>
-              <Text style={styles.ingredientName}>{name}</Text>
-              <Text style={styles.ingredientValue}>{value}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Nutrition */}
-        <Text style={styles.sectionTitle}>Nutrition</Text>
-        <View style={styles.cardNutrition}>
-          <View style={styles.nutritionRow}>
-            <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Cal</Text><Text style={styles.nutritionValueBold}>299</Text></View>
-            <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Protein</Text><Text style={styles.nutritionValueBold}>12g</Text></View>
-            <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Fat</Text><Text style={styles.nutritionValueBold}>15g</Text></View>
-            <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Carb</Text><Text style={styles.nutritionValueBold}>34g</Text></View>
-          </View>
-        </View>
-
-        {/* Instruction */}
-        <Text style={styles.sectionTitle}>Instruction</Text>
-        {[1,2,3].map((step) => (
-          <View key={step} style={styles.cardStep}>
-            <Text style={styles.stepNumber}>{step}</Text>
-            <Text style={styles.stepText}>In a medium bowl, add the flour, sugar, baking powder, and salt, and stir to combine.</Text>
+      {/* Ingredients */}
+      <Text style={styles.sectionTitle}>Ingredients</Text>
+      <View style={styles.ingredientTable}>
+        {[
+          ["flour", "125g"],
+          ["organic sugar", "2 tablespoons"],
+          ["baking powder", "1 tablespoon"],
+          ["salt", "1/2 teaspoon"],
+          ["non-diary milk", "240ml  mL"]
+        ].map(([name, value], idx, arr) => (
+          <View key={name} style={[styles.ingredientRow, idx < arr.length - 1 && styles.ingredientRowBorder]}>
+            <Text style={styles.ingredientName}>{name}</Text>
+            <Text style={styles.ingredientValue}>{value}</Text>
           </View>
         ))}
-      </ScrollView>
+      </View>
+
+      {/* Nutrition */}
+      <Text style={styles.sectionTitle}>Nutrition</Text>
+      <View style={styles.cardNutrition}>
+        <View style={styles.nutritionRow}>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Cal</Text><Text style={styles.nutritionValueBold}>299</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Protein</Text><Text style={styles.nutritionValueBold}>12g</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Fat</Text><Text style={styles.nutritionValueBold}>15g</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Carb</Text><Text style={styles.nutritionValueBold}>34g</Text></View>
+        </View>
+      </View>
+
+      {/* Instruction */}
+      <Text style={styles.sectionTitle}>Instruction</Text>
+      {[1, 2, 3].map((step) => (
+        <View key={step} style={styles.cardStep}>
+          <Text style={styles.stepNumber}>{step}</Text>
+          <Text style={styles.stepText}>In a medium bowl, add the flour, sugar, baking powder, and salt, and stir to combine.</Text>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
