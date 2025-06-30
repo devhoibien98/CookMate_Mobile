@@ -1,12 +1,11 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const UserProfile = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
@@ -28,9 +27,12 @@ const UserProfile = () => {
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>User Name</Text>
                 <Text style={styles.userEmail}>Username@gmail.com</Text>
-                <View style={styles.editButton}>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => navigation.navigate("EditProfile")}
+                >
                   <Text style={styles.editText}>Edit profile</Text>
-                </View>
+                </TouchableOpacity>
               </View>
             </View>
           </LinearGradient>
