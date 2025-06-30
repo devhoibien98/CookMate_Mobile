@@ -28,8 +28,9 @@ export default function TabLayout() {
         }),
       }}
     >
+
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -39,7 +40,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="home"
+        name="index"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -59,21 +60,21 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="person" size={28} color={color} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
         name="favourite"
         options={{
           title: "Favourite",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="favorite" size={28} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="person" size={28} color={color} />
           ),
         }}
       />
