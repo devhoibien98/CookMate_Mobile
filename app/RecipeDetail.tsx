@@ -1,10 +1,25 @@
-import { Feather, FontAwesome } from '@expo/vector-icons';
-import * as React from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import FavoriteButton from '@/components/FavoriteButton';
+import { Feather, FontAwesome } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import * as React from "react";
+import { useLayoutEffect } from 'react';
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+
+
 
 const RecipeDetail = () => {
+  const route = useRoute();
+  const { recipe } = route.params as { recipe: any };
   const [isFavorite, setIsFavorite] = React.useState(false);
+  const navigation = useNavigation();
+
+  useLayoutEffect (() => {
+    navigation.setOptions({ title: 'Recipe Detail'});
+  }, [navigation]);
+
+  if (!recipe) {
+    return <ScrollView><Text style={{margin: 32, textAlign: 'center'}}>Recipe not found.</Text></ScrollView>;
+  }
 
   return (
     <ScrollView>
@@ -14,16 +29,14 @@ const RecipeDetail = () => {
       <View style={styles.cardIntro}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>The Fluffiest Vegan Pancakes</Text>
-            <Text style={styles.subtitle}>You have all the ingredients</Text>
+            <Text style={styles.title}>{recipe.name}</Text>
+            <Text style={styles.subtitle}>{recipe.description || ''}</Text>
             <View style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}>
-              <FontAwesome name="star" size={18} color="#FFD700" />
-              <FontAwesome name="star" size={18} color="#FFD700" />
-              <FontAwesome name="star" size={18} color="#FFD700" />
-              <FontAwesome name="star" size={18} color="#FFD700" />
-              <FontAwesome name="star" size={18} color="#eee" />
+              {[1,2,3,4,5].map(i => (
+                <FontAwesome key={i} name="star" size={18} color={i <= Math.round(recipe.aiRating) ? "#FFD700" : "#eee"} />
+              ))}
               <Feather name="clock" size={16} color="#888" style={{ marginLeft: 16 }} />
-              <Text style={styles.timeText}>8 mins</Text>
+              <Text style={styles.timeText}>{recipe.cookingTime ? `${recipe.cookingTime} mins` : ''}</Text>
             </View>
           </View>
           <FavoriteButton
@@ -37,16 +50,10 @@ const RecipeDetail = () => {
       {/* Ingredients */}
       <Text style={styles.sectionTitle}>Ingredients</Text>
       <View style={styles.ingredientTable}>
-        {[
-          ["flour", "125g"],
-          ["organic sugar", "2 tablespoons"],
-          ["baking powder", "1 tablespoon"],
-          ["salt", "1/2 teaspoon"],
-          ["non-diary milk", "240ml  mL"]
-        ].map(([name, value], idx, arr) => (
+        {(recipe.ingredients || []).map((name: string, idx: number, arr: string[]) => (
           <View key={name} style={[styles.ingredientRow, idx < arr.length - 1 && styles.ingredientRowBorder]}>
             <Text style={styles.ingredientName}>{name}</Text>
-            <Text style={styles.ingredientValue}>{value}</Text>
+            <Text style={styles.ingredientValue}></Text>
           </View>
         ))}
       </View>
@@ -55,19 +62,19 @@ const RecipeDetail = () => {
       <Text style={styles.sectionTitle}>Nutrition</Text>
       <View style={styles.cardNutrition}>
         <View style={styles.nutritionRow}>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Cal</Text><Text style={styles.nutritionValueBold}>299</Text></View>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Protein</Text><Text style={styles.nutritionValueBold}>12g</Text></View>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Fat</Text><Text style={styles.nutritionValueBold}>15g</Text></View>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Carb</Text><Text style={styles.nutritionValueBold}>34g</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Cal</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.calories ?? '--'}</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Protein</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.protein ?? '--'}g</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Fat</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.fat ?? '--'}g</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Carb</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.carbs ?? '--'}g</Text></View>
         </View>
       </View>
 
       {/* Instruction */}
       <Text style={styles.sectionTitle}>Instruction</Text>
-      {[1, 2, 3].map((step) => (
-        <View key={step} style={styles.cardStep}>
-          <Text style={styles.stepNumber}>{step}</Text>
-          <Text style={styles.stepText}>In a medium bowl, add the flour, sugar, baking powder, and salt, and stir to combine.</Text>
+      {(recipe.cookingSteps && recipe.cookingSteps.length > 0 ? recipe.cookingSteps : [{stepNumber: 1, description: 'No steps.'}]).map((step: any) => (
+        <View key={step.stepNumber} style={styles.cardStep}>
+          <Text style={styles.stepNumber}>{step.stepNumber}</Text>
+          <Text style={styles.stepText}>{step.description}</Text>
         </View>
       ))}
     </ScrollView>
@@ -93,7 +100,7 @@ const styles = StyleSheet.create({
   subtitle: { color: "#888", fontSize: 14 },
   timeText: { color: "#888", fontSize: 14, marginLeft: 4 },
   sectionTitle: { fontWeight: "bold", fontSize: 17, marginTop: 32, marginBottom: 12, marginLeft: 16 },
-  ingredientTable: { backgroundColor: "#fff", marginHorizontal: 0, borderRadius: 8, overflow: "hidden", marginBottom: 8, marginTop: 0 },
+  ingredientTable: { backgroundColor: "#fff", marginHorizontal: 0, borderRadius: 0, overflow: "hidden", marginBottom: 8, marginTop: 0 },
   ingredientRow: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 10, backgroundColor: "#fff" },
   ingredientRowBorder: { borderBottomWidth: 1, borderColor: "#eee" },
   ingredientName: { color: "#888", fontSize: 15 },

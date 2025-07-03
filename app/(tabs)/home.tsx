@@ -1,78 +1,78 @@
-import LatestRecipes from '@/components/homepage/LatestRecipes';
 import QuickLinks from '@/components/homepage/QuickLinks';
 import TodaysRecipe from '@/components/homepage/TodaysRecipe';
-import TonightRecipe from '@/components/homepage/TonightRecipe';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LatestRecipes from '../../components/homepage/LatestRecipes';
+import TonightRecipe from '../../components/homepage/TonightRecipe';
 
-const todaysRecipe = {
-  title: 'Hanna makes no-cook meal prep, 3 ways',
-  author: 'Hanna Reader',
-  likes: 1400,
-  image: require('../../assets/images/banner-homepage.png'),
-};
+type RootStackParamList = { RecipeDetail: { recipe: any } };
 
-const latestRecipes = [
-  {
-    id: '1',
-    title: 'Avocado salad',
-    author: 'Van A',
-    likes: 346,
-    time: '10 min.',
-    tag: 'Vegetarian',
-    image: require('../../assets/images/food-img-homepage.png'),
-  },
-  {
-    id: '2',
-    title: 'Spaghetti with minced beef sauce',
-    author: 'Simon',
-    likes: 847,
-    time: '25 min.',
-    tag: '',
-    image: require('../../assets/images/food-img-homepage.png'),
-  },
-  {
-    id: '3',
-    title: 'Spaghetti with minced beef sauce',
-    author: 'Layla',
-    likes: 847,
-    time: '25 min.',
-    tag: '',
-    image: require('../../assets/images/food-img-homepage.png'),
-  },
-];
-
-const tonightRecipes = [
-  {
-    title: 'Vietnamese Steamed Fermented Fish Cake',
-    author: 'Meen',
-    likes: 6400,
-    time: '10 min.',
-    image: require('../../assets/images/food-img-homepage.png'),
-  },
-  {
-    title: 'Grilled Chicken with Broccoli',
-    author: 'Anna',
-    likes: 5200,
-    time: '15 min.',
-    image: require('../../assets/images/banner-homepage.png'),
-  },
-  {
-    title: 'Spaghetti with minced beef sauce',
-    author: 'Simon',
-    likes: 847,
-    time: '25 min.',
-    image: require('../../assets/images/tonight-food.png'),
-  },
-];
-
-const quickLinks = [
-  { id: '1', title: 'Keto', image: require('../../assets/images/food-img-homepage.png') },
-  { id: '2', title: 'Low carb', image: require('../../assets/images/food-img-homepage.png') },
-  { id: '3', title: 'Low fat', image: require('../../assets/images/food-img-homepage.png') },
-];
+const API_URL = 'https://cookmate-api.lighttail.com/recipes?page=1&limit=10';
 
 export default function HomeScreen() {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'RecipeDetail'>>();
+  
+
+  useEffect(() => {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        // Map API data về đúng format cho các component
+        const mapped = (data.data || []).map((item: any, idx: number) => ({
+          id: item.id,
+          title: item.name,
+          rating: item.aiRating,
+          time: item.cookingTime ? `${item.cookingTime} min.` : '',
+          image: require('../../assets/images/food-img-homepage.png'), // demo ảnh, bạn có thể sửa lại nếu API có ảnh
+          avatar: require('../../assets/images/food-icon.png'), // demo avatar
+        }));
+        setRecipes(mapped);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Dữ liệu mẫu cho Today's Recipe và QuickLinks giữ nguyên
+  const todaysRecipe = {
+    title: 'Hanna makes no-cook meal prep, 3 ways',
+    author: 'Hanna Reader',
+    likes: 1400,
+    image: require('../../assets/images/banner-homepage.png'),
+  };
+
+  const quickLinks = [
+    { id: '1', title: 'Keto', image: require('../../assets/images/food-img-homepage.png') },
+    { id: '2', title: 'Low carb', image: require('../../assets/images/food-img-homepage.png') },
+    { id: '3', title: 'Low fat', image: require('../../assets/images/food-img-homepage.png') },
+  ];
+
+  
+
+  // Hàm xử lý khi nhấn See All
+  const handleSeeAll = () => {
+    router.push('/AllRecipes');
+  };
+
+  // Hàm xử lý khi click vào 1 recipe
+  const handleRecipePress = async (id: string) => {
+    try {
+      const res = await fetch('https://cookmate-api.lighttail.com/recipes?page=1&limit=10');
+      const data = await res.json();
+      const recipe = (data.data || []).find((item: any) => item.id === id);
+      if (recipe) {
+        navigation.navigate('RecipeDetail', { recipe });
+      }
+    } catch (e) {
+      // Có thể show alert nếu muốn
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       {/* Today's Recipe */}
@@ -84,17 +84,17 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <View style={styles.rowBetween}>
           <Text style={styles.sectionTitle}>Our Latest Recipes</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleSeeAll}>
             <Text style={styles.seeAll}>See all</Text>
           </TouchableOpacity>
         </View>
-        <LatestRecipes recipes={latestRecipes} />
+        {loading ? <ActivityIndicator /> : <LatestRecipes recipes={recipes.slice(0, 5)} onRecipePress={handleRecipePress} />}
       </View>
 
       {/* What to Cook Tonight */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>What to Cook Tonight</Text>
-        <TonightRecipe recipes={tonightRecipes} />
+        {loading ? <ActivityIndicator /> : <TonightRecipe recipes={recipes.slice(0, 3)} onRecipePress={handleRecipePress} />}
       </View>
 
       {/* Quick link for you */}
