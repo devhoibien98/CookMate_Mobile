@@ -1,10 +1,11 @@
 import CombineLayout from '@/components/Component';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { useLayoutEffect } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+type RootStackParamList = { RecipeDetail: { recipe: any } };
 
 const API_URL = 'https://cookmate-api.lighttail.com/recipes?page=1&limit=100';
 
@@ -13,11 +14,7 @@ const AllRecipes = () => {
   const [loading, setLoading] = React.useState(true);
   const [visibleCount, setVisibleCount] = React.useState(10);
   const [showLoginPrompt, setShowLoginPrompt] = React.useState(false);
-  const navigation = useNavigation();
-
-  useLayoutEffect (() => {
-      navigation.setOptions({ title: 'All Recipes'});
-    }, [navigation]);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'RecipeDetail'>>();
 
   // TODO: Thay thế bằng logic kiểm tra đăng nhập thực tế của app bạn
   const isLoggedIn = false; // Giả lập chưa đăng nhập
@@ -51,7 +48,7 @@ const AllRecipes = () => {
                   {row.map((recipe: any) => (
                     <TouchableOpacity key={recipe.id} activeOpacity={0.7} onPress={() => navigation.navigate('RecipeDetail', { recipe })}>
                       <View style={styles.recipeCard}>
-                        <Image style={styles.recipeImage} resizeMode="cover" source={require("../assets/images/recipe-suggestion.png")} />
+                        <Image style={styles.recipeImage} resizeMode="cover" source={require("../../assets/images/recipe-suggestion.png")} />
                         <View style={styles.infoRow}>
                           <Text style={styles.minText}>{recipe.cookingTime ? `${recipe.cookingTime} min` : ''}</Text>
                           <View style={styles.starsContainer}>
