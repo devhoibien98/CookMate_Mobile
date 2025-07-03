@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from "react";
 import { useLayoutEffect } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import FavoriteButton from '@/components/FavoriteButton';
 
 
 
@@ -66,6 +67,7 @@ const RecipeDetail = () => {
           <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Protein</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.protein ?? '--'}g</Text></View>
           <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Fat</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.fat ?? '--'}g</Text></View>
           <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Carb</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.carbs ?? '--'}g</Text></View>
+
         </View>
       </View>
 
