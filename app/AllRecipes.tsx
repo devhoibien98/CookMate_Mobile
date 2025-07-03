@@ -48,7 +48,7 @@ const AllRecipes = () => {
                   {row.map((recipe: any) => (
                     <TouchableOpacity key={recipe.id} activeOpacity={0.7} onPress={() => navigation.navigate('RecipeDetail', { recipe })}>
                       <View style={styles.recipeCard}>
-                        <Image style={styles.recipeImage} resizeMode="cover" source={require("../../assets/images/recipe-suggestion.png")} />
+                        <Image style={styles.recipeImage} resizeMode="cover" source={require("../assets/images/recipe-suggestion.png")} />
                         <View style={styles.infoRow}>
                           <Text style={styles.minText}>{recipe.cookingTime ? `${recipe.cookingTime} min` : ''}</Text>
                           <View style={styles.starsContainer}>
