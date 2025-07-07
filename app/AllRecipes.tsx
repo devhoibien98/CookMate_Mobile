@@ -38,60 +38,60 @@ const AllRecipes = () => {
             <ActivityIndicator size="large" style={{ marginTop: 32 }} />
           ) : (
             <>
-            <View style={styles.recipeGrid}>
-              {recipes.slice(0, visibleCount).reduce((rows: any[][], recipe: any, idx: number) => {
-                if (idx % 2 === 0) rows.push([recipe]);
-                else rows[rows.length - 1].push(recipe);
-                return rows;
-              }, []).map((row: any[], rowIdx: number) => (
-                <View style={styles.recipeRow} key={rowIdx}>
-                  {row.map((recipe: any) => (
-                    <TouchableOpacity key={recipe.id} activeOpacity={0.7} onPress={() => navigation.navigate('RecipeDetail', { recipe })}>
-                      <View style={styles.recipeCard}>
-                        <Image style={styles.recipeImage} resizeMode="cover" source={require("../assets/images/recipe-suggestion.png")} />
-                        <View style={styles.infoRow}>
-                          <Text style={styles.minText}>{recipe.cookingTime ? `${recipe.cookingTime} min` : ''}</Text>
-                          <View style={styles.starsContainer}>
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <FontAwesome
-                                key={i}
-                                name="star"
-                                size={15}
-                                color={i < Math.round(recipe.aiRating) ? 'gold' : 'gray'}
-                              />
-                            ))}
+              <View style={styles.recipeGrid}>
+                {recipes.slice(0, visibleCount).reduce((rows: any[][], recipe: any, idx: number) => {
+                  if (idx % 2 === 0) rows.push([recipe]);
+                  else rows[rows.length - 1].push(recipe);
+                  return rows;
+                }, []).map((row: any[], rowIdx: number) => (
+                  <View style={styles.recipeRow} key={rowIdx}>
+                    {row.map((recipe: any) => (
+                      <TouchableOpacity key={recipe.id} activeOpacity={0.7} onPress={() => navigation.navigate('RecipeDetail', { recipe })}>
+                        <View style={styles.recipeCard}>
+                          <Image style={styles.recipeImage} resizeMode="cover" source={require("../assets/images/recipe-suggestion.png")} />
+                          <View style={styles.infoRow}>
+                            <Text style={styles.minText}>{recipe.cookingTime ? `${recipe.cookingTime} min` : ''}</Text>
+                            <View style={styles.starsContainer}>
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <FontAwesome
+                                  key={i}
+                                  name="star"
+                                  size={15}
+                                  color={i < Math.round(recipe.aiRating) ? 'gold' : 'gray'}
+                                />
+                              ))}
+                            </View>
                           </View>
+                          <Text style={styles.recipeTitle}>{recipe.name}</Text>
                         </View>
-                        <Text style={styles.recipeTitle}>{recipe.name}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ))}
-            </View>
-            {recipes.length > visibleCount && (
-              <TouchableOpacity
-                style={styles.moreButton}
-                onPress={() => {
-                  if (!isLoggedIn) {
-                    setShowLoginPrompt(true);
-                  } else {
-                    setVisibleCount(visibleCount + 10);
-                  }
-                }}
-              >
-                <Text style={styles.moreButtonText}>More</Text>
-              </TouchableOpacity>
-            )}
-            {showLoginPrompt && (
-              <View style={styles.loginPromptContainer}>
-                <Text style={styles.loginPromptText}>Please log in to see more recipes.</Text>
-                {/* Có thể thêm nút chuyển hướng sang trang đăng nhập ở đây */}
-                <TouchableOpacity onPress={() => setShowLoginPrompt(false)}>
-                  <Text style={{ color: 'blue', marginTop: 8 }}>Close</Text>
-                </TouchableOpacity>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ))}
               </View>
-            )}
+              {recipes.length > visibleCount && (
+                <TouchableOpacity
+                  style={styles.moreButton}
+                  onPress={() => {
+                    if (!isLoggedIn) {
+                      setShowLoginPrompt(true);
+                    } else {
+                      setVisibleCount(visibleCount + 10);
+                    }
+                  }}
+                >
+                  <Text style={styles.moreButtonText}>More</Text>
+                </TouchableOpacity>
+              )}
+              {showLoginPrompt && (
+                <View style={styles.loginPromptContainer}>
+                  <Text style={styles.loginPromptText}>Please log in to see more recipes.</Text>
+                  {/* Có thể thêm nút chuyển hướng sang trang đăng nhập ở đây */}
+                  <TouchableOpacity onPress={() => setShowLoginPrompt(false)}>
+                    <Text style={{ color: 'blue', marginTop: 8 }}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </>
           )}
         </View>
