@@ -30,7 +30,7 @@ export default function TabLayout() {
     >
 
       <Tabs.Screen
-        name="home"
+        name="index"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -40,11 +40,11 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="index"
+        name="PantryStack"
         options={{
-          title: "Home",
+          title: "Pantry",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <MaterialIcons name="kitchen" size={28} color={color} />
           ),
         }}
       />

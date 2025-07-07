@@ -1,21 +1,63 @@
-import { AuthStackParamList } from '@/src/navigation/AuthNavigator';
+import { ProfileStackParamList } from '@/app/(tabs)/profile';
+import { MESSAGES } from '@/src/constants/messages';
+import axiosInstance from '@/src/services/axiosInstance';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { Alert, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-type SignUpScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'SignUp'>;
+type SignUpScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'SignUp'>;
 
 const SignUpScreen = () => {
 
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const navigation = useNavigation<SignUpScreenNavigationProp>()
-    const handleLogin = () => {
-        Alert.alert('Login', 'Login successful');
+    const navigation = useNavigation<SignUpScreenNavigationProp>();
+
+    const handleSignUp = async () => {
+        // Validation
+        if (!username.trim()) {
+            Alert.alert(MESSAGES.SIGNUP_ERROR, MESSAGES.SIGNUP_USERNAME_REQUIRED);
+            return;
+        }
+        if (!email.trim()) {
+            Alert.alert(MESSAGES.SIGNUP_ERROR, MESSAGES.SIGNUP_EMAIL_REQUIRED);
+            return;
+        }
+        if (!password.trim()) {
+            Alert.alert(MESSAGES.SIGNUP_ERROR, MESSAGES.SIGNUP_PASSWORD_REQUIRED);
+            return;
+        }
+        if (!isBranchEmail(email)) {
+            Alert.alert(MESSAGES.SIGNUP_ERROR, MESSAGES.SIGNUP_EMAIL_INVALID);
+            return;
+        }
+        if (!isPasswordValid(password)) {
+            Alert.alert(MESSAGES.SIGNUP_ERROR, MESSAGES.SIGNUP_PASSWORD_INVALID);
+            return;
+        }
+
+        try {
+            const response = await axiosInstance.post('/authorize/register', { username, email, password });
+            Alert.alert(MESSAGES.SIGNUP_SUCCESS, response.data.message);
+            navigation.navigate('Login');
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || MESSAGES.SIGNUP_ERROR;
+            Alert.alert(MESSAGES.SIGNUP_ERROR, errorMessage);
+        }
     }
+
+    const isBranchEmail = (email: string) => {
+        return email.trim().toLowerCase().endsWith('@branch');
+    };
+
+    const isPasswordValid = (password: string) => {
+        return password.trim().length > 5 && password.trim().length < 20 && !password.trim().includes(' ');
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient
@@ -44,49 +86,45 @@ const SignUpScreen = () => {
                     <Text style={styles.title}>CookMate</Text>
 
                     {/* Input Fields */}
-                    <TextInput
-                        placeholder="Email"
-                        placeholderTextColor="#aaa"
-                        style={[styles.input, styles.inputTop, styles.inputBorder]}
-                        value={email}
-                        onChangeText={setEmail}
-                    />
-                    <TextInput
-                        placeholder="Password"
-                        placeholderTextColor="#aaa"
-                        secureTextEntry
-                        style={[styles.input, styles.inputBorder]}
-                        value={password}
-                        onChangeText={setPassword}
-                    />
-                    <TextInput
-                        placeholder="Verify password"
-                        placeholderTextColor="#aaa"
-                        secureTextEntry
-                        style={[styles.input, styles.inputBottom, { marginBottom: 20 }]}
-                        value={password}
-                        onChangeText={setPassword}
-                    />
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            placeholder="Username"
+                            placeholderTextColor="#aaa"
+                            style={[styles.input, styles.inputTop, styles.inputBorder]}
+                            value={username}
+                            onChangeText={setUsername}
+                        />
+                        <TextInput
+                            placeholder="Email"
+                            placeholderTextColor="#aaa"
+                            style={[styles.input, styles.inputBorder]}
+                            value={email}
+                            onChangeText={setEmail}
+                        />
+                        <TextInput
+                            placeholder="Password"
+                            placeholderTextColor="#aaa"
+                            secureTextEntry
+                            style={[styles.input, styles.inputBorder, styles.inputBottom]}
+                            value={password}
+                            onChangeText={setPassword}
+                        />
 
+                    </View>
 
                     {/* Login Button */}
                     <TouchableOpacity style={styles.loginButton}
-                        onPress={() => handleLogin()}>
+                        onPress={() => handleSignUp()}>
                         <Text style={styles.loginText}>Sign up</Text>
                     </TouchableOpacity>
 
-                    {/* Forgot password */}
-                    {/* <TouchableOpacity>
-                        <Text style={styles.forgotText}>Forgot password</Text>
-                    </TouchableOpacity> */}
                 </ImageBackground>
             </LinearGradient>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 };
 
 export default SignUpScreen;
-
 
 const styles = StyleSheet.create({
     container: {
@@ -135,7 +173,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 8,
     },
     loginButton: {
-        backgroundColor: '#E44B15', // đỏ cam
+        backgroundColor: '#E44B15',
         paddingVertical: 14,
         borderRadius: 8,
         alignItems: 'center',
@@ -158,6 +196,4 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#aaa',
     }
-
 });
-

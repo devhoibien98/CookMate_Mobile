@@ -1,8 +1,8 @@
+import HomeMainScreen from '@/src/screens/home/HomeMainScreen';
+import React from 'react';
 
-import AuthNavigator from '@/src/navigation/AuthNavigator';
 
-export default function HomeScreen() {
-  return (
-    <AuthNavigator />
-  );
+
+export default function RootScreen() {
+    return <HomeMainScreen />;
 }

@@ -1,20 +1,35 @@
-import { AuthStackParamList } from '@/src/navigation/AuthNavigator';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { ProfileStackParamList } from '@/app/(tabs)/profile';
+import { MESSAGES } from '@/src/constants/messages';
+import axiosInstance from '@/src/services/axiosInstance';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-type LoginScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
+
+
+
 
 const LoginScreen = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const navigation = useNavigation<LoginScreenNavigationProp>()
-    const handleLogin = () => {
-        Alert.alert('Login', 'Login successful');
+    const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
+    const handleLogin = async () => {
+        try {
+            const response = await axiosInstance.post('/authorize/login', { usernameOrEmail: email, password });
+            await AsyncStorage.setItem('token', response.data.access_token);
+            navigation.navigate('UserProfile');
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                const message = error.response.data?.message || MESSAGES.LOGIN_ERROR_401;
+                Alert.alert(MESSAGES.LOGIN_ERROR, message);
+            } else {
+                Alert.alert(MESSAGES.LOGIN_ERROR, MESSAGES.LOGIN_ERROR_DEFAULT);
+            }
+        }
     }
     return (
         <SafeAreaView style={styles.container}>
@@ -30,11 +45,6 @@ const LoginScreen = () => {
                 >
                     {/* Back & Sign up Row */}
                     <View style={styles.header}>
-                        <TouchableOpacity>
-                            <View>
-                                <Ionicons name="arrow-back" size={24} color="white" />
-                            </View>
-                        </TouchableOpacity>
                         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
                             <Text style={styles.signupText}>Sign up</Text>
                         </TouchableOpacity>
@@ -69,10 +79,7 @@ const LoginScreen = () => {
                         <Text style={styles.loginText}>Login</Text>
                     </TouchableOpacity>
 
-                    {/* Forgot password */}
-                    <TouchableOpacity>
-                        <Text style={styles.forgotText}>Forgot password</Text>
-                    </TouchableOpacity>
+
                 </ImageBackground>
             </LinearGradient>
         </SafeAreaView>
@@ -97,7 +104,7 @@ const styles = StyleSheet.create({
         left: 24,
         right: 24,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
     },
     signupText: {
         color: 'white',
