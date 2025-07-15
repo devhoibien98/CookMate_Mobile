@@ -21,6 +21,7 @@ interface LatestRecipesProps {
 const AVATAR_PLACEHOLDER = require('../../../assets/images/food-icon.png');
 
 const LatestRecipes: React.FC<LatestRecipesProps> = ({ recipes, onRecipePress }) => (
+  !recipes || recipes.length === 0 ? null :
   <FlatList
     data={recipes}
     horizontal
