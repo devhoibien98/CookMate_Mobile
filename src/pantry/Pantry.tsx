@@ -18,11 +18,7 @@ interface Ingredient {
     category: 'animals' | 'seafood' | 'fruits_vegetables';
 }
 
-// Define the type for a navigation tab
-interface Tab {
-    name: string;
-    icon: keyof typeof Ionicons.glyphMap;
-}
+
 
 const App: React.FC = () => {
     const [ingredients, setIngredients] = useState<string[]>([]);
@@ -87,9 +83,7 @@ const App: React.FC = () => {
         setIngredients(ingredients.filter((ingredient) => ingredient !== ingredientToRemove));
     };
 
-    const navigationTabs: Tab[] = [
-        { name: 'Pantry', icon: 'cube-outline' },
-    ];
+
 
     return (
         <CombineLayout>
