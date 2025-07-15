@@ -22,7 +22,7 @@ const AVATAR_PLACEHOLDER = require('../../../assets/images/food-icon.png');
 const TonightRecipe: React.FC<TonightRecipeProps> = ({ recipes, onRecipePress }) => {
   const [current, setCurrent] = useState(0);
   const timer = useRef<any>(null);
-
+  if (!recipes || recipes.length === 0) return null; 
   useEffect(() => {
     timer.current = setInterval(() => {
       setCurrent(prev => (prev + 1) % recipes.length);
