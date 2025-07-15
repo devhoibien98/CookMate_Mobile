@@ -1,18 +1,18 @@
 import { ProfileStackParamList } from '@/app/(tabs)/profile';
 import { MESSAGES } from '@/src/constants/messages';
+import { AuthContext } from '@/src/contexts/AuthContext';
 import axiosInstance from '@/src/services/axiosInstance';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from 'expo-router';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Alert, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 
 
 
-
 const LoginScreen = () => {
+    const { signIn } = useContext(AuthContext)
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,8 +20,7 @@ const LoginScreen = () => {
     const handleLogin = async () => {
         try {
             const response = await axiosInstance.post('/authorize/login', { usernameOrEmail: email, password });
-            await AsyncStorage.setItem('token', response.data.access_token);
-            navigation.navigate('UserProfile');
+            await signIn(response.data.access_token)
         } catch (error: any) {
             if (error.response && error.response.status === 401) {
                 const message = error.response.data?.message || MESSAGES.LOGIN_ERROR_401;

@@ -1,13 +1,13 @@
+import { AuthContext } from "@/src/contexts/AuthContext";
 import LoginScreen from "@/src/screens/auth/LoginScreen";
 import SignUpScreen from "@/src/screens/auth/SignUpScreen";
 import DietPreferencesScreen from "@/src/screens/profile/DietPreferencesScreen";
 import EditProfileScreen from "@/src/screens/profile/EditProfileScreen";
 import HistoryScreen from "@/src/screens/profile/HistoryScreen";
 import UserProfile from "@/src/screens/profile/UserProfile";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 
 export type ProfileStackParamList = {
   UserProfile: undefined;
@@ -21,15 +21,13 @@ export type ProfileStackParamList = {
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
 export default function ProfileStack() {
+
+  const { token } = useContext(AuthContext)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useFocusEffect(
     useCallback(() => {
-      const checkLogin = async () => {
-        const token = await AsyncStorage.getItem('token');
-        setIsLoggedIn(token !== null);
-      };
-      checkLogin();
-    }, []));
+      setIsLoggedIn(token !== null);
+    }, [token]));
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
