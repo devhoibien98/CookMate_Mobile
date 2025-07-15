@@ -1,3 +1,4 @@
+import AIGenerate from '@/src/pantry/AIGenerate';
 import Pantry from '@/src/pantry/Pantry';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
@@ -9,6 +10,13 @@ export default function PantryStack() {
             <Stack.Screen
                 name="Pantry"
                 component={Pantry}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Stack.Screen
+                name="AIGenerate"
+                component={AIGenerate}
                 options={{
                     headerShown: false,
                 }}
