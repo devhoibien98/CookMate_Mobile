@@ -13,4 +13,15 @@ export const MESSAGES = {
     SIGNUP_USERNAME_REQUIRED: 'Tên người dùng là bắt buộc',
     SIGNUP_EMAIL_REQUIRED: 'Email là bắt buộc',
     SIGNUP_PASSWORD_REQUIRED: 'Mật khẩu là bắt buộc',
+
+
+    // Pantry messages
+    PANTRY_LABEL_ERROR: 'Thiếu nguyên liệu',
+    PANTRY_LABEL_ERROR_DEFAULT: 'Bạn phải chọn ít nhất 1 nguyên liệu.',
+    PANTRY_LABEL_ERROR_401: 'Quá nhiều nguyên liệu',
+    PANTRY_LABEL_ERROR_DEFAULT_401: 'Chỉ được tối đa 10 nguyên liệu.',
+    PANTRY_LABEL_SEARCH: 'Tìm nguyên liệu...',
+
+
+
 };
