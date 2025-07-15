@@ -1,15 +1,16 @@
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
+import { AuthContext } from "@/src/contexts/AuthContext";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { useContext } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const UserProfile = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
-
+  const { signOut } = useContext(AuthContext)
   return (
     <View style={styles.wrapper}>
       <SafeAreaView style={styles.container}>
@@ -26,6 +27,7 @@ const UserProfile = () => {
               </View>
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>User Name</Text>
+
                 <Text style={styles.userEmail}>Username@gmail.com</Text>
                 <TouchableOpacity
                   style={styles.editButton}
@@ -57,7 +59,7 @@ const UserProfile = () => {
         </View>
       </SafeAreaView>
 
-      <TouchableOpacity style={styles.logoutRow}>
+      <TouchableOpacity style={styles.logoutRow} onPress={() => signOut()}>
         <Ionicons name="log-out-outline" size={24} color="#ff080c" />
         <Text style={styles.logoutText}>Log out</Text>
       </TouchableOpacity>

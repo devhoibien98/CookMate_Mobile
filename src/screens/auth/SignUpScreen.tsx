@@ -31,7 +31,7 @@ const SignUpScreen = () => {
             Alert.alert(MESSAGES.SIGNUP_ERROR, MESSAGES.SIGNUP_PASSWORD_REQUIRED);
             return;
         }
-        if (!isBranchEmail(email)) {
+        if (!isGmail(email)) {
             Alert.alert(MESSAGES.SIGNUP_ERROR, MESSAGES.SIGNUP_EMAIL_INVALID);
             return;
         }
@@ -50,8 +50,8 @@ const SignUpScreen = () => {
         }
     }
 
-    const isBranchEmail = (email: string) => {
-        return email.trim().toLowerCase().endsWith('@branch');
+    const isGmail = (email: string) => {
+        return email.trim().toLowerCase().endsWith('@gmail.com');
     };
 
     const isPasswordValid = (password: string) => {
