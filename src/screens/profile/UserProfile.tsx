@@ -10,7 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const UserProfile = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
-  const { signOut } = useContext(AuthContext)
+  const { signOut, user } = useContext(AuthContext)
+  console.log('user', user)
   return (
     <View style={styles.wrapper}>
       <SafeAreaView style={styles.container}>

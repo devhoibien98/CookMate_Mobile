@@ -20,7 +20,7 @@ const LoginScreen = () => {
     const handleLogin = async () => {
         try {
             const response = await axiosInstance.post('/authorize/login', { usernameOrEmail: email, password });
-            await signIn(response.data.access_token)
+            await signIn(response.data.access_token, response.data.user)
         } catch (error: any) {
             if (error.response && error.response.status === 401) {
                 const message = error.response.data?.message || MESSAGES.LOGIN_ERROR_401;

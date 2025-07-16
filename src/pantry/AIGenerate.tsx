@@ -72,7 +72,6 @@ const AIGenerate = () => {
                                             </Text>
                                         </TouchableOpacity>
                                     ))}
-                                    {/* If row has only 1 recipe, add an empty View for alignment */}
                                     {row.length === 1 && <View style={[styles.recipeCard, { opacity: 0 }]} />}
                                 </View>
                             ))
