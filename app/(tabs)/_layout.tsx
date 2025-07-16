@@ -50,16 +50,6 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="menu"
-        options={{
-          title: "Menu",
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="restaurant-menu" size={28} color={color} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
         name="favourite"
         options={{
           title: "Favourite",
