@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useContext } from "react";
+import type { ProfileStackParamList } from "@/app/(tabs)/profile";
+import CombineLayout from "@/components/Component";
+import { AuthContext } from "@/src/contexts/AuthContext";
+import { getUserById } from "@/src/services/userService";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useContext, useEffect, useState } from "react";
 import {
-  View,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
-  ScrollView,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
-import CombineLayout from "@/components/Component";
-import type { ProfileStackParamList } from "@/app/(tabs)/profile";
-import { getUserById } from "@/src/services/userService";
-import { AuthContext } from "@/src/contexts/AuthContext";
 
 const EditProfileScreen = () => {
   const navigation =
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#000",
     borderRadius: 8,
-    paddingHorizontal: 12, 
+    paddingHorizontal: 12,
     height: 48,
     marginBottom: 16,
   },
