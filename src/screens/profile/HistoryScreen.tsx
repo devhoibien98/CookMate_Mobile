@@ -1,15 +1,16 @@
+import CombineLayout from "@/components/Component";
+import { useFavorites } from "@/hooks/useFavorites";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   Image,
   ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import CombineLayout from "@/components/Component";
-import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const historyData = [
@@ -59,7 +60,8 @@ const historyData = [
 
 const HistoryScreen = () => {
   const router = useRouter();
-
+  const { favorites } = useFavorites();
+  console.log('favorites', favorites)
   return (
     <CombineLayout>
       <SafeAreaView style={{ flex: 1 }}>
