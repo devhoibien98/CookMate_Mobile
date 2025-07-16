@@ -1,9 +1,12 @@
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
 import { AuthContext } from "@/src/contexts/AuthContext";
+import { getUserById } from "@/src/services/userService";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
+import React, { useContext, useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useContext } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,6 +15,25 @@ import { clearAllAsyncStorage, debugAsyncStorage } from "@/utils/asyncStorageUti
 
 const UserProfile = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
+  const { signOut, user } = useContext(AuthContext);
+
+  const [fullUser, setFullUser] = useState(user);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await getUserById(user.userId);
+        setFullUser(data);
+      } catch (err) {
+        console.log("Không thể lấy thông tin user:", err);
+      }
+    };
+
+    if (user.userId) {
+      fetchUser();
+    }
+  }, [user.userId]);
+
   const { signOut } = useContext(AuthContext);
   const { clearFavoritesStorage } = useFavorites();
 
@@ -56,6 +78,7 @@ const UserProfile = () => {
     Alert.alert("Debug", "Check console for AsyncStorage contents");
   };
 
+
   return (
     <View style={styles.wrapper}>
       <SafeAreaView style={styles.container}>
@@ -68,12 +91,13 @@ const UserProfile = () => {
           >
             <View style={styles.profileContainer}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>U</Text>
+                <Text style={styles.avatarText}>
+                  {fullUser?.username?.charAt(0)?.toUpperCase() || "U"}
+                </Text>
               </View>
               <View style={styles.userInfo}>
-                <Text style={styles.userName}>User Name</Text>
-
-                <Text style={styles.userEmail}>Username@gmail.com</Text>
+                <Text style={styles.userName}>{fullUser?.username || "User Name"}</Text>
+                <Text style={styles.userEmail}>{fullUser?.email || "email@example.com"}</Text>
                 <TouchableOpacity
                   style={styles.editButton}
                   onPress={() => navigation.navigate("EditProfile")}

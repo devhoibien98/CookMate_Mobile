@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -13,18 +13,39 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import CombineLayout from "@/components/Component";
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
+import { getUserById } from "@/src/services/userService";
+import { AuthContext } from "@/src/contexts/AuthContext";
 
 const EditProfileScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
 
+  const { user } = useContext(AuthContext);
   const [username, setUsername] = useState("");
-  const [bio, setBio] = useState(
-    "Loving home-cooked meals and always curious to try new recipes."
-  );
-  const [gender, setGender] = useState("Female");
-  const [birthday, setBirthday] = useState("");
-  const [password, setPassword] = useState("********");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        const data = await getUserById(user.userId);
+        setUsername(data.username);
+        setEmail(data.email);
+        setPassword(data.password); // 🟢 lấy trực tiếp từ API
+      } catch (err) {
+        console.log("Lỗi khi lấy thông tin user:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user.userId) {
+      fetchUser();
+    }
+  }, [user.userId]);
 
   return (
     <CombineLayout>
@@ -41,11 +62,10 @@ const EditProfileScreen = () => {
 
         <View style={styles.avatarWrapper}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>U</Text>
+            <Text style={styles.avatarText}>
+              {username?.charAt(0)?.toUpperCase() || "U"}
+            </Text>
           </View>
-          <TouchableOpacity style={styles.editIcon}>
-            <Ionicons name="pencil" size={16} color="#000" />
-          </TouchableOpacity>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -57,36 +77,30 @@ const EditProfileScreen = () => {
             onChangeText={setUsername}
           />
 
-          <Text style={styles.label}>Bio</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            multiline
-            value={bio}
-            onChangeText={setBio}
-          />
-
-          <Text style={styles.label}>Gender</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
-            value={gender}
-            onChangeText={setGender}
-          />
-
-          <Text style={styles.label}>Birthday</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="YYYY-MM-DD"
-            value={birthday}
-            onChangeText={setBirthday}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
           />
 
           <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, { flex: 1, marginBottom: 0, borderWidth: 0 }]}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={22}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity>
             <Text style={styles.deleteText}>Delete Account</Text>
@@ -135,15 +149,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#000",
   },
-  editIcon: {
-    position: "absolute",
-    right: 140,
-    bottom: 0,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 4,
-    elevation: 3,
-  },
   label: {
     fontSize: 16,
     fontWeight: "500",
@@ -155,12 +160,19 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#000",
     borderRadius: 8,
-    padding: 12,
+    paddingHorizontal: 12, 
+    height: 48,
     marginBottom: 16,
   },
-  textArea: {
-    height: 80,
-    textAlignVertical: "top",
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderWidth: 0.5,
+    borderColor: "#000",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
   },
   deleteText: {
     color: "#fc0004",
