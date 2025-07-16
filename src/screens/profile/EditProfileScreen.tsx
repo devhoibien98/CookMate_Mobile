@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,7 +14,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import CombineLayout from "@/components/Component";
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
-import { getUserById } from "@/src/services/userService";
+import { getUserById, updateUser } from "@/src/services/userService";
 import { AuthContext } from "@/src/contexts/AuthContext";
 
 const EditProfileScreen = () => {
@@ -34,7 +35,7 @@ const EditProfileScreen = () => {
         const data = await getUserById(user.userId);
         setUsername(data.username);
         setEmail(data.email);
-        setPassword(data.password); // 🟢 lấy trực tiếp từ API
+        setPassword(data.password);
       } catch (err) {
         console.log("Lỗi khi lấy thông tin user:", err);
       } finally {
@@ -47,6 +48,26 @@ const EditProfileScreen = () => {
     }
   }, [user.userId]);
 
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const userData = {
+        username,
+        email,
+        password,
+      };
+
+      await updateUser(user.userId, userData);
+      Alert.alert("Thông báo", "Cập nhật thành công!");
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Lỗi", "Đã xảy ra lỗi khi lưu thông tin.");
+      console.error("Lỗi updateUser:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <CombineLayout>
       <SafeAreaView style={styles.container}>
@@ -55,7 +76,7 @@ const EditProfileScreen = () => {
             <Ionicons name="arrow-back-outline" size={24} color="#fe8300" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Edit Profile</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleSave}>
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
         </View>
@@ -160,7 +181,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#000",
     borderRadius: 8,
-    paddingHorizontal: 12, 
+    paddingHorizontal: 12,
     height: 48,
     marginBottom: 16,
   },

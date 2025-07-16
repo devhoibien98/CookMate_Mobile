@@ -9,3 +9,13 @@ export const getUserById = async (userId: string) => {
     throw err;
   }
 };
+
+export const updateUser = async (userId: string, userData: object) => {
+  try {
+    const res = await axiosInstance.put(`/users/${userId}`, userData);
+    return res.data;
+  } catch (err) {
+    console.error('Lỗi khi gọi updateUser:', err);
+    throw err;
+  }
+};
