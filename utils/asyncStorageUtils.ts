@@ -97,27 +97,26 @@ export const clearMultipleAsyncStorageKeys = async (
   }
 };
 
-const HISTORY_KEY = "history_recipes";
+const HISTORY_KEY = (userId: string) => `history_${userId}`;
 
-export const addToHistory = async (item) => {
+export const addToHistory = async (userId: string, item: any) => {
   try {
-    const history = await AsyncStorage.getItem(HISTORY_KEY);
+    const key = HISTORY_KEY(userId);
+    const history = await AsyncStorage.getItem(key);
     let historyArr = history ? JSON.parse(history) : [];
-    // Xoá trùng nếu đã có
-    historyArr = historyArr.filter((i) => i.id !== item.id);
-    // Thêm mới lên đầu
+    historyArr = historyArr.filter((i: any) => i.id !== item.id);
     historyArr.unshift(item);
-    // Giới hạn số lượng (tuỳ ý, ví dụ 20)
     if (historyArr.length > 20) historyArr = historyArr.slice(0, 20);
-    await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(historyArr));
+    await AsyncStorage.setItem(key, JSON.stringify(historyArr));
   } catch (e) {
     console.log("Error saving history", e);
   }
 };
 
-export const getHistory = async () => {
+export const getHistory = async (userId: string) => {
   try {
-    const history = await AsyncStorage.getItem(HISTORY_KEY);
+    const key = HISTORY_KEY(userId);
+    const history = await AsyncStorage.getItem(key);
     return history ? JSON.parse(history) : [];
   } catch (e) {
     return [];

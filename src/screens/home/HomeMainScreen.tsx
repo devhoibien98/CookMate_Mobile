@@ -41,7 +41,7 @@ export default function HomeMainScreen() {
     useNavigation<
       NativeStackNavigationProp<RootStackParamList, "RecipeDetail">
     >();
-  const { token } = React.useContext(AuthContext);
+  const { token, user } = React.useContext(AuthContext);
   const isLoggedIn = !!token;
 
   useEffect(() => {
@@ -95,13 +95,15 @@ export default function HomeMainScreen() {
     try {
       const data: RecipesResponse = await fetchRecipes(1, 10);
       const recipe = (data.data || []).find((item: any) => item.id === id);
-      if (recipe) {
-        await addToHistory({
+      if (recipe && user?.id) {
+        await addToHistory(user.id, {
           id: recipe.id,
           title: recipe.name,
           image: require("../../../assets/images/food-img-homepage.png"),
           rating: recipe.aiRating || 0,
-          time: recipe.cookingTime || 0,
+          ingredientsInfo: recipe.ingredients
+            ? `You have all ${recipe.ingredients.length} ingredients`
+            : "",
         });
         navigation.navigate("RecipeDetail", { recipe });
       }

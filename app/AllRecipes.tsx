@@ -30,7 +30,7 @@ const AllRecipes = () => {
       NativeStackNavigationProp<RootStackParamList, "RecipeDetail">
     >();
   const router = useRouter();
-  const { token } = React.useContext(AuthContext);
+  const { token, user } = React.useContext(AuthContext);
   const isLoggedIn = !!token;
 
   const RECIPES_PER_PAGE = 10;
@@ -77,15 +77,17 @@ const AllRecipes = () => {
                           key={recipe.id}
                           activeOpacity={0.7}
                           onPress={() => {
-                            addToHistory({
-                              id: recipe.id,
-                              title: recipe.name,
-                              image: require("../assets/images/recipe-suggestion.png"),
-                              rating: recipe.aiRating || 0,
-                              ingredientsInfo: recipe.ingredients
-                                ? `You have all ${recipe.ingredients.length} ingredients`
-                                : "",
-                            });
+                            if (user?.id) {
+                              addToHistory(user.id, {
+                                id: recipe.id,
+                                title: recipe.name,
+                                image: require("../assets/images/recipe-suggestion.png"),
+                                rating: recipe.aiRating || 0,
+                                ingredientsInfo: recipe.ingredients
+                                  ? `You have all ${recipe.ingredients.length} ingredients`
+                                  : "",
+                              });
+                            }
                             navigation.navigate("RecipeDetail", { recipe });
                           }}
                         >

@@ -1,4 +1,5 @@
 import CombineLayout from "@/components/Component";
+import { AuthContext } from "@/src/contexts/AuthContext";
 import { getHistory } from "@/utils/asyncStorageUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
@@ -18,12 +19,13 @@ const HistoryScreen = () => {
   const router = useRouter();
   const [historyData, setHistoryData] = useState([]);
   const isFocused = useIsFocused();
+  const { user } = React.useContext(AuthContext);
 
   useEffect(() => {
-    if (isFocused) {
-      getHistory().then(setHistoryData);
+    if (isFocused && user?.id) {
+      getHistory(user.id).then(setHistoryData);
     }
-  }, [isFocused]);
+  }, [isFocused, user]);
 
   return (
     <CombineLayout>
