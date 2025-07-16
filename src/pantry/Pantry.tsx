@@ -102,6 +102,7 @@ const App: React.FC = () => {
 
     return (
         <CombineLayout>
+
             <View style={styles.container}>
                 {/* Ingredient Input Section */}
                 <View style={styles.inputContainer}>
