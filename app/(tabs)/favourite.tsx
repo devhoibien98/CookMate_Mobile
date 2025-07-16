@@ -120,7 +120,10 @@ const FavouriteScreen = () => {
                                     }}
                                     activeOpacity={0.8}
                                 >
-                                    <Image source={item.image} style={styles.cardImage} />
+                                    <Image
+                                        source={require('../../assets/images/recipe-suggestion.png')}
+                                        style={styles.cardImage}
+                                    />
                                     <View style={{ flex: 1, marginLeft: 12 }}>
                                         <Text style={styles.cardTitle}>{recipeName}</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
