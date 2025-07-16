@@ -42,7 +42,12 @@ const HistoryScreen = () => {
               (
                 <TouchableOpacity
                   key={item.id}
-                  onPress={() => router.push("/RecipeDetail")}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/RecipeDetail",
+                      params: { id: item.id },
+                    })
+                  }
                   activeOpacity={0.7}
                   style={styles.card}
                 >
