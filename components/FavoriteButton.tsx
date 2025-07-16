@@ -10,8 +10,12 @@ interface FavoriteButtonProps {
 }
 
 const FavoriteButton: React.FC<FavoriteButtonProps> = ({ isFavorite, onPress, size = 22, style }) => {
+    const handlePress = () => {
+        onPress();
+    };
+
     return (
-        <TouchableOpacity onPress={onPress} style={style} activeOpacity={0.7}>
+        <TouchableOpacity onPress={handlePress} style={style} activeOpacity={0.7}>
             <FontAwesome
                 name={isFavorite ? 'heart' : 'heart-o'}
                 size={size}
