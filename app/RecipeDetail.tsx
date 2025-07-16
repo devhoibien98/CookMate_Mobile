@@ -1,9 +1,14 @@
-import FavoriteButton from '@/components/FavoriteButton';
-import { Recipe, useFavorites } from '@/hooks/useFavorites';
-import { Feather, FontAwesome } from '@expo/vector-icons';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import FavoriteButton from "@/components/FavoriteButton";
+import { Recipe, useFavorites } from "@/hooks/useFavorites";
+import { fetchRecipes } from "@/src/services/recipes";
+import { Feather, FontAwesome } from "@expo/vector-icons";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import * as React from "react";
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const RecipeDetail = () => {
@@ -13,33 +18,39 @@ const RecipeDetail = () => {
 
   // Get recipe from route params
   const recipeParam = (route.params as any)?.recipe;
-  let recipe: Recipe | null = null;
+  const idParam = (route.params as any)?.id;
+  const [recipe, setRecipe] = React.useState<Recipe | null>(null);
+  const [loading, setLoading] = React.useState(false);
 
-  if (recipeParam) {
-    try {
-      if (typeof recipeParam === 'string') {
-        // Check if it's already a JSON string
-        if (recipeParam.startsWith('{') || recipeParam.startsWith('[')) {
-          recipe = JSON.parse(recipeParam);
+  React.useEffect(() => {
+    if (recipeParam) {
+      try {
+        if (typeof recipeParam === "string") {
+          if (recipeParam.startsWith("{") || recipeParam.startsWith("[")) {
+            setRecipe(JSON.parse(recipeParam));
+          } else {
+            setRecipe(null);
+          }
+        } else if (typeof recipeParam === "object" && recipeParam !== null) {
+          setRecipe(recipeParam);
         } else {
-          console.error('Invalid JSON string:', recipeParam);
-          recipe = null;
+          setRecipe(null);
         }
-      } else if (typeof recipeParam === 'object' && recipeParam !== null) {
-        // It's already an object, use it directly
-        recipe = recipeParam;
-      } else {
-        console.error('Invalid recipe param type:', typeof recipeParam);
-        recipe = null;
+      } catch (error) {
+        setRecipe(null);
       }
-    } catch (error) {
-      console.error('Error parsing recipe:', error);
-      recipe = null;
+    } else if (idParam) {
+      setLoading(true);
+      fetchRecipes(1, 100).then((res) => {
+        const found = res.data.find((item: any) => item.id === idParam);
+        setRecipe(found || null);
+        setLoading(false);
+      });
     }
-  }
+  }, [recipeParam, idParam]);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: 'Chi tiết món ăn' });
+    navigation.setOptions({ title: "Chi tiết món ăn" });
   }, [navigation]);
 
   useFocusEffect(
@@ -52,7 +63,9 @@ const RecipeDetail = () => {
   if (!recipe) {
     return (
       <ScrollView>
-        <Text style={{ margin: 32, textAlign: 'center' }}>Không tìm thấy món ăn.</Text>
+        <Text style={{ margin: 32, textAlign: "center" }}>
+          Không tìm thấy món ăn.
+        </Text>
       </ScrollView>
     );
   }
@@ -62,28 +75,56 @@ const RecipeDetail = () => {
   };
 
   // Handle data inconsistencies - some screens pass 'title' instead of 'name'
-  const recipeName = recipe.name || recipe.title || 'Tên món ăn không xác định';
-  const recipeDescription = recipe.description || '';
+  const recipeName = recipe.name || recipe.title || "Tên món ăn không xác định";
+  const recipeDescription = recipe.description || "";
   const recipeRating = recipe.aiRating || recipe.rating || 0;
   const recipeCookingTime = recipe.cookingTime || 0;
   const recipeIngredients = recipe.ingredients || [];
 
   return (
     <ScrollView>
-      <Image style={styles.image} resizeMode="cover" source={require("../assets/images/recipedetail.png")} />
+      <Image
+        style={styles.image}
+        resizeMode="cover"
+        source={require("../assets/images/recipedetail.png")}
+      />
 
       {/* Card Intro */}
       <View style={styles.cardIntro}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>{recipeName}</Text>
             <Text style={styles.subtitle}>{recipeDescription}</Text>
-            <View style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}>
-              {[1, 2, 3, 4, 5].map(i => (
-                <FontAwesome key={i} name="star" size={18} color={i <= Math.round(recipeRating) ? "#FFD700" : "#eee"} />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 8,
+              }}
+            >
+              {[1, 2, 3, 4, 5].map((i) => (
+                <FontAwesome
+                  key={i}
+                  name="star"
+                  size={18}
+                  color={i <= Math.round(recipeRating) ? "#FFD700" : "#eee"}
+                />
               ))}
-              <Feather name="clock" size={16} color="#888" style={{ marginLeft: 16 }} />
-              <Text style={styles.timeText}>{recipeCookingTime ? `${recipeCookingTime} phút` : 'Chưa rõ'}</Text>
+              <Feather
+                name="clock"
+                size={16}
+                color="#888"
+                style={{ marginLeft: 16 }}
+              />
+              <Text style={styles.timeText}>
+                {recipeCookingTime ? `${recipeCookingTime} phút` : "Chưa rõ"}
+              </Text>
             </View>
           </View>
           <FavoriteButton
@@ -99,14 +140,22 @@ const RecipeDetail = () => {
       <View style={styles.ingredientTable}>
         {Array.isArray(recipeIngredients) && recipeIngredients.length > 0 ? (
           recipeIngredients.map((name: string, idx: number, arr: string[]) => (
-            <View key={`${name}-${idx}`} style={[styles.ingredientRow, idx < arr.length - 1 && styles.ingredientRowBorder]}>
+            <View
+              key={`${name}-${idx}`}
+              style={[
+                styles.ingredientRow,
+                idx < arr.length - 1 && styles.ingredientRowBorder,
+              ]}
+            >
               <Text style={styles.ingredientName}>{name}</Text>
               <Text style={styles.ingredientValue}></Text>
             </View>
           ))
         ) : (
           <View style={styles.ingredientRow}>
-            <Text style={styles.ingredientName}>Chưa có thông tin nguyên liệu</Text>
+            <Text style={styles.ingredientName}>
+              Chưa có thông tin nguyên liệu
+            </Text>
             <Text style={styles.ingredientValue}></Text>
           </View>
         )}
@@ -116,16 +165,39 @@ const RecipeDetail = () => {
       <Text style={styles.sectionTitle}>Dinh dưỡng</Text>
       <View style={styles.cardNutrition}>
         <View style={styles.nutritionRow}>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Calo</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.calories ?? '--'}</Text></View>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Protein</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.protein ?? '--'}g</Text></View>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Chất béo</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.fat ?? '--'}g</Text></View>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Carb</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.carbs ?? '--'}g</Text></View>
+          <View style={styles.nutritionCol}>
+            <Text style={styles.nutritionLabel}>Calo</Text>
+            <Text style={styles.nutritionValueBold}>
+              {recipe.nutritionInfo?.calories ?? "--"}
+            </Text>
+          </View>
+          <View style={styles.nutritionCol}>
+            <Text style={styles.nutritionLabel}>Protein</Text>
+            <Text style={styles.nutritionValueBold}>
+              {recipe.nutritionInfo?.protein ?? "--"}g
+            </Text>
+          </View>
+          <View style={styles.nutritionCol}>
+            <Text style={styles.nutritionLabel}>Chất béo</Text>
+            <Text style={styles.nutritionValueBold}>
+              {recipe.nutritionInfo?.fat ?? "--"}g
+            </Text>
+          </View>
+          <View style={styles.nutritionCol}>
+            <Text style={styles.nutritionLabel}>Carb</Text>
+            <Text style={styles.nutritionValueBold}>
+              {recipe.nutritionInfo?.carbs ?? "--"}g
+            </Text>
+          </View>
         </View>
       </View>
 
       {/* Instruction */}
       <Text style={styles.sectionTitle}>Hướng dẫn</Text>
-      {(recipe.cookingSteps && recipe.cookingSteps.length > 0 ? recipe.cookingSteps : [{ stepNumber: 1, description: 'Chưa có hướng dẫn.' }]).map((step: any) => (
+      {(recipe.cookingSteps && recipe.cookingSteps.length > 0
+        ? recipe.cookingSteps
+        : [{ stepNumber: 1, description: "Chưa có hướng dẫn." }]
+      ).map((step: any) => (
         <View key={step.stepNumber} style={styles.cardStep}>
           <Text style={styles.stepNumber}>{step.stepNumber}</Text>
           <Text style={styles.stepText}>{step.description}</Text>
@@ -148,14 +220,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
-    zIndex: 2
+    zIndex: 2,
   },
   title: { fontWeight: "bold", fontSize: 18, marginBottom: 2 },
   subtitle: { color: "#888", fontSize: 14 },
   timeText: { color: "#888", fontSize: 14, marginLeft: 4 },
-  sectionTitle: { fontWeight: "bold", fontSize: 17, marginTop: 32, marginBottom: 12, marginLeft: 16 },
-  ingredientTable: { backgroundColor: "#fff", marginHorizontal: 0, borderRadius: 0, overflow: "hidden", marginBottom: 8, marginTop: 0 },
-  ingredientRow: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 10, backgroundColor: "#fff" },
+  sectionTitle: {
+    fontWeight: "bold",
+    fontSize: 17,
+    marginTop: 32,
+    marginBottom: 12,
+    marginLeft: 16,
+  },
+  ingredientTable: {
+    backgroundColor: "#fff",
+    marginHorizontal: 0,
+    borderRadius: 0,
+    overflow: "hidden",
+    marginBottom: 8,
+    marginTop: 0,
+  },
+  ingredientRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+  },
   ingredientRowBorder: { borderBottomWidth: 1, borderColor: "#eee" },
   ingredientName: { color: "#888", fontSize: 15 },
   ingredientValue: { color: "#888", fontSize: 15 },
@@ -171,11 +262,20 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     flexDirection: "row",
-    justifyContent: "center"
+    justifyContent: "center",
   },
-  nutritionRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+  nutritionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   nutritionCol: { flex: 1, alignItems: "center" },
-  nutritionLabel: { color: "#888", fontWeight: "bold", fontSize: 15, marginBottom: 2 },
+  nutritionLabel: {
+    color: "#888",
+    fontWeight: "bold",
+    fontSize: 15,
+    marginBottom: 2,
+  },
   nutritionValueBold: { fontWeight: "bold", fontSize: 16, color: "#222" },
   cardStep: {
     backgroundColor: "#fff",
@@ -189,7 +289,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 2
+    elevation: 2,
   },
   stepNumber: {
     fontWeight: "bold",
@@ -201,9 +301,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     borderRadius: 14,
     marginRight: 12,
-    color: "#333"
+    color: "#333",
   },
-  stepText: { flex: 1, fontSize: 15, lineHeight: 22, color: "#333" }
+  stepText: { flex: 1, fontSize: 15, lineHeight: 22, color: "#333" },
 });
 
 export default RecipeDetail;
