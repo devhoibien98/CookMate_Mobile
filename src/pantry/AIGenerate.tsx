@@ -1,15 +1,31 @@
 import CombineLayout from '@/components/Component';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from 'expo-router';
 import * as React from "react";
 import { useContext } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { MESSAGES } from '../constants/messages';
+
 import { AuthContext } from '../contexts/AuthContext';
 
-const AIGenerate = () => {
-    const navigation = useNavigation();
-    const { mySelectIngredients, myRecipes } = useContext(AuthContext);
+interface Recipe {
+    id: string;
+    name: string;
+    cookingTime: number;
+    aiRating: number;
+    description: string;
+}
 
+export type RootStackParamList = {
+    StepScreen: {
+        id: string;
+        recipe: Recipe;
+    };
+};
+
+const AIGenerate = () => {
+    const navigation = useNavigation<any>();
+    const { mySelectIngredients, myRecipes } = useContext(AuthContext);
     // Group recipes into rows of 2 for grid display
     const chunkArray = (arr: any[], size: number) => {
         const result = [];
@@ -25,14 +41,22 @@ const AIGenerate = () => {
 
     return (
         <CombineLayout>
+
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                <TouchableOpacity
+                    style={{ margin: 16, alignSelf: 'flex-start' }}
+                    onPress={() => navigation.goBack()}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                    <Ionicons name="arrow-back-outline" size={28} color="black" />
+                </TouchableOpacity>
                 <View style={styles.contentArea}>
                     <Text style={styles.heresWhatWe}>
                         These are dishes from {convertString}
                     </Text>
                     <View style={styles.recipeGrid}>
                         {recipeRows.length === 0 ? (
-                            <Text style={styles.noRecipeText}>No recipes found for your selected ingredients.</Text>
+                            <Text style={styles.noRecipeText}>{MESSAGES.AIGENERATE_LABEL_ERROR}</Text>
                         ) : (
                             recipeRows.map((row, rowIndex) => (
                                 <View style={styles.recipeRow} key={rowIndex}>
@@ -41,7 +65,7 @@ const AIGenerate = () => {
                                             key={recipe.id || colIndex}
                                             style={styles.recipeCard}
                                             activeOpacity={0.7}
-                                        // onPress={() => navigation.navigate('', { recipeId: recipe.id })}
+                                            onPress={() => navigation.navigate('StepScreen', { id: recipe.id, recipe: recipe })}
                                         >
                                             <Image
                                                 style={styles.recipeImage}
@@ -72,7 +96,6 @@ const AIGenerate = () => {
                                             </Text>
                                         </TouchableOpacity>
                                     ))}
-                                    {/* If row has only 1 recipe, add an empty View for alignment */}
                                     {row.length === 1 && <View style={[styles.recipeCard, { opacity: 0 }]} />}
                                 </View>
                             ))
@@ -90,7 +113,7 @@ const styles = StyleSheet.create({
     muChild: { ...StyleSheet.absoluteFillObject },
     cookmate: { fontSize: 48, fontFamily: "JosefinSans-Regular", color: "#fff", position: 'absolute', top: 63, left: 97 },
     scrollViewContent: { flexGrow: 1, paddingBottom: 50 },
-    contentArea: { backgroundColor: "#fff", borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 33, paddingHorizontal: 19 },
+    contentArea: { backgroundColor: "#fff", borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 15, paddingHorizontal: 19 },
     heresWhatWe: { color: "#000", fontSize: 24, fontWeight: "bold", textAlign: "center", marginBottom: 26, alignSelf: 'center', width: '100%' },
     recipeGrid: {},
     recipeRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 20 },

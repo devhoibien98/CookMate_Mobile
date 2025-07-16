@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { RecipesResponse } from '../../../src/services/recipes';
 import { fetchRecipes } from '../../../src/services/recipes';
+import { AuthContext } from '../../contexts/AuthContext';
 import LatestRecipes from './LatestRecipes';
 import QuickLinks from './QuickLinks';
 import TodaysRecipe from './TodaysRecipe';
@@ -30,11 +31,13 @@ export default function HomeMainScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'RecipeDetail'>>();
-
+  const { token } = React.useContext(AuthContext);
+  const isLoggedIn = !!token;
   const loadRecipes = React.useCallback(() => {
     setLoading(true);
     fetchRecipes(1, 10)
       .then((data: any) => {
+
         const mapped = (data.data || []).map((item: any) => ({
           id: item.id,
           title: item.name,

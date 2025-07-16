@@ -4,6 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from 'expo-router';
 import React, { useContext, useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     Alert,
     ScrollView,
     StyleSheet,
@@ -24,6 +25,7 @@ type PantryStackParamList = {
 const App: React.FC = () => {
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [newIngredient, setNewIngredient] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
     const { setMySelectIngredients, setMyRecipes } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<PantryStackParamList>>();
     // Tìm kiếm tất cả thể loại trong PREDEFINED_INGREDIENTS
@@ -57,7 +59,6 @@ const App: React.FC = () => {
 
     };
 
-    // Toggle ingredient: add if not selected, remove if already selected
     const togglePredefinedIngredient = (ingredient: string) => {
         if (ingredients.includes(ingredient)) {
             setIngredients(ingredients.filter((i) => i !== ingredient));
@@ -71,37 +72,62 @@ const App: React.FC = () => {
     }
 
     const generateRecipe = async () => {
-
+        setIsLoading(true);
         const cleanedIngredients = ingredients
             .map((i) => i.trim())
             .filter((i) => i !== '');
 
         if (cleanedIngredients.length === 0) {
             Alert.alert(MESSAGES.PANTRY_LABEL_ERROR, MESSAGES.PANTRY_LABEL_ERROR_DEFAULT);
+            setIsLoading(false);
             return;
         }
 
         if (cleanedIngredients.length > 10) {
             Alert.alert(MESSAGES.PANTRY_LABEL_ERROR_401, MESSAGES.PANTRY_LABEL_ERROR_DEFAULT_401);
+            setIsLoading(false);
             return;
         }
 
         const payload = { ingredients: cleanedIngredients };
-        console.log('Payload gửi lên:', payload);
+        console.log('Payload send:', payload);
+
+        let timeoutId: number | null = null;
+        let finished = false;
+
+        timeoutId = setTimeout(() => {
+            if (!finished) {
+                finished = true;
+                setIsLoading(false);
+                Alert.alert(
+                    MESSAGES.PANTRY_LABEL_ERROR_TIMEOUT,
+                    MESSAGES.PANTRY_LABEL_ERROR_TIMEOUT_DEFAULT
+                );
+            }
+        }, 6000);
+
         try {
             const response = await axiosInstance.post('/ai/recipes/generate', payload);
+            finished = true;
+            if (timeoutId) clearTimeout(timeoutId);
             setMySelectIngredients(cleanedIngredients);
             setMyRecipes(response.data);
             navigation.navigate('AIGenerate');
             console.log('response', response.data);
         } catch (error) {
+            finished = true;
+            if (timeoutId) clearTimeout(timeoutId);
+
             console.log('error', error);
+        } finally {
+            setIsLoading(false);
         }
     }
 
 
     return (
         <CombineLayout>
+
             <View style={styles.container}>
                 {/* Ingredient Input Section */}
                 <View style={styles.inputContainer}>
@@ -113,16 +139,28 @@ const App: React.FC = () => {
                         onChangeText={setNewIngredient}
                         onSubmitEditing={addIngredient}
                     />
-                    <TouchableOpacity style={styles.addButton} onPress={generateRecipe}>
-                        <Text style={styles.addButtonText}>+ Add</Text>
+                    <TouchableOpacity
+                        disabled={ingredients.length === 0}
+                        style={[
+                            styles.addButton,
+                            ingredients.length === 0 && { opacity: 0.8, backgroundColor: '#ccc' }
+                        ]}
+                        onPress={generateRecipe}
+                    >
+                        {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.addButtonText}>+ Add</Text>}
                     </TouchableOpacity>
                 </View>
 
                 {/* Selected Ingredients Section */}
                 <View style={styles.selectedIngredientsContainer}>
                     <View style={styles.selectedIngredientsHeader}>
-                        <Text style={styles.selectedIngredientsTitle}>
-                            Selected ingredients ({ingredients.length})
+                        <Text
+                            style={[
+                                styles.selectedIngredientsTitle,
+                                ingredients.length > 10 && { color: 'red' }
+                            ]}
+                        >
+                            Selected ingredients ({ingredients.length}/10)
                         </Text>
                         {ingredients.length > 0 && (
                             <TouchableOpacity
