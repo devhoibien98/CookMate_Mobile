@@ -18,7 +18,7 @@ import {
 
 type RootStackParamList = { RecipeDetail: { recipe: any } };
 
-const API_URL = "https://cookmate-api.lighttail.com/recipes?page=1&limit=100";
+const API_URL = "https://cookmate-api.lighttail.com/recipes?page=1&limit=10000";
 
 const AllRecipes = () => {
   const [recipes, setRecipes] = React.useState<any[]>([]);

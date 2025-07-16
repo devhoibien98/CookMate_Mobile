@@ -68,12 +68,6 @@ const HistoryScreen = () => {
                       {item.ingredientsInfo}
                     </Text>
                   </View>
-                  <Ionicons
-                    name="heart"
-                    size={18}
-                    color="red"
-                    style={styles.heart}
-                  />
                 </TouchableOpacity>
               )
             )
