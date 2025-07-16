@@ -1,5 +1,6 @@
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
 import { AuthContext } from "@/src/contexts/AuthContext";
+import { getUserById } from "@/src/services/userService";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -41,12 +42,13 @@ const UserProfile = () => {
           >
             <View style={styles.profileContainer}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>U</Text>
+                <Text style={styles.avatarText}>
+                  {fullUser?.username?.charAt(0)?.toUpperCase() || "U"}
+                </Text>
               </View>
               <View style={styles.userInfo}>
-                <Text style={styles.userName}>User Name</Text>
-
-                <Text style={styles.userEmail}>Username@gmail.com</Text>
+                <Text style={styles.userName}>{fullUser?.username || "User Name"}</Text>
+                <Text style={styles.userEmail}>{fullUser?.email || "email@example.com"}</Text>
                 <TouchableOpacity
                   style={styles.editButton}
                   onPress={() => navigation.navigate("EditProfile")}
@@ -84,7 +86,6 @@ const UserProfile = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,

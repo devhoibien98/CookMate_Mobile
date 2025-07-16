@@ -1,6 +1,6 @@
-import { FontAwesome } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
 interface Recipe {
   id: string;
@@ -21,8 +21,10 @@ const AVATAR_PLACEHOLDER = require('../../../assets/images/food-icon.png');
 
 const TonightRecipe: React.FC<TonightRecipeProps> = ({ recipes, onRecipePress }) => {
   const [current, setCurrent] = useState(0);
-  const timer = useRef<any>(null);
-  if (!recipes || recipes.length === 0) return null; 
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  if (!recipes || recipes.length === 0) return null;
+
   useEffect(() => {
     timer.current = setInterval(() => {
       setCurrent(prev => (prev + 1) % recipes.length);
