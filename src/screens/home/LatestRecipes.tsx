@@ -48,10 +48,6 @@ const LatestRecipes: React.FC<LatestRecipesProps> = ({ recipes, onRecipePress })
             </View>
           </View>
           <Text style={styles.name}>{item.title}</Text>
-          <View style={styles.authorRow}>
-            <Image source={item.avatar || AVATAR_PLACEHOLDER} style={styles.avatar} />
-            <Text style={styles.author}>{item.author}</Text>
-          </View>
         </TouchableOpacity>
       )}
     />

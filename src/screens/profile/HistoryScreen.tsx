@@ -1,7 +1,9 @@
 import CombineLayout from "@/components/Component";
+import { getHistory } from "@/utils/asyncStorageUtils";
 import { Ionicons } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -12,53 +14,16 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const historyData = [
-  {
-    id: 1,
-    title: "Microwave Scrambled Eggs",
-    ingredientsInfo: "You have all 2 ingredients",
-    image: require("@/assets/images/recipe-suggestion.png"),
-    rating: 4,
-  },
-  {
-    id: 2,
-    title: "Avocado Toast",
-    ingredientsInfo: "Missing 1 ingredient",
-    image: require("@/assets/images/recipe-suggestion.png"),
-    rating: 5,
-  },
-  {
-    id: 3,
-    title: "Overnight Oats",
-    ingredientsInfo: "You have all 3 ingredients",
-    image: require("@/assets/images/recipe-suggestion.png"),
-    rating: 3,
-  },
-  {
-    id: 4,
-    title: "Greek Yogurt Bowl",
-    ingredientsInfo: "You have all ingredients",
-    image: require("@/assets/images/recipe-suggestion.png"),
-    rating: 5,
-  },
-  {
-    id: 5,
-    title: "Smoothie with Banana & Spinach",
-    ingredientsInfo: "Missing 2 ingredients",
-    image: require("@/assets/images/recipe-suggestion.png"),
-    rating: 2,
-  },
-  {
-    id: 6,
-    title: "Grilled Cheese Sandwich",
-    ingredientsInfo: "You have all 2 ingredients",
-    image: require("@/assets/images/recipe-suggestion.png"),
-    rating: 4,
-  },
-];
-
 const HistoryScreen = () => {
   const router = useRouter();
+  const [historyData, setHistoryData] = useState([]);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused) {
+      getHistory().then(setHistoryData);
+    }
+  }, [isFocused]);
 
   return (
     <CombineLayout>
@@ -71,31 +36,43 @@ const HistoryScreen = () => {
         </View>
 
         <ScrollView style={styles.list}>
-          {historyData.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => router.push("/RecipeDetail")}
-              activeOpacity={0.7}
-              style={styles.card}
-            >
-              <Image source={item.image} style={styles.image} />
-              <View style={styles.info}>
-                <Text style={styles.name}>{item.title}</Text>
-                <View style={styles.rating}>
-                  {[...Array(5)].map((_, i) => (
-                    <Ionicons
-                      key={i}
-                      name={i < item.rating ? "star" : "star-outline"}
-                      size={16}
-                      color="#FFD700"
-                    />
-                  ))}
-                </View>
-                <Text style={styles.ingredients}>{item.ingredientsInfo}</Text>
-              </View>
-              <Ionicons name="heart" size={18} color="red" style={styles.heart} />
-            </TouchableOpacity>
-          ))}
+          {historyData.map(
+            (item: any) => (
+              console.log(item),
+              (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => router.push("/RecipeDetail")}
+                  activeOpacity={0.7}
+                  style={styles.card}
+                >
+                  <Image source={item.image} style={styles.image} />
+                  <View style={styles.info}>
+                    <Text style={styles.name}>{item.title}</Text>
+                    <View style={styles.rating}>
+                      {[...Array(5)].map((_, i) => (
+                        <Ionicons
+                          key={i}
+                          name={i < item.rating ? "star" : "star-outline"}
+                          size={16}
+                          color="#FFD700"
+                        />
+                      ))}
+                    </View>
+                    <Text style={styles.ingredients}>
+                      {item.ingredientsInfo}
+                    </Text>
+                  </View>
+                  <Ionicons
+                    name="heart"
+                    size={18}
+                    color="red"
+                    style={styles.heart}
+                  />
+                </TouchableOpacity>
+              )
+            )
+          )}
         </ScrollView>
       </SafeAreaView>
     </CombineLayout>
