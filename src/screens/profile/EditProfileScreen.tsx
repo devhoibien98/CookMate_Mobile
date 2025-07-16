@@ -7,14 +7,14 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Alert,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   View,
-  SafeAreaView,
 } from "react-native";
 
 const EditProfileScreen = () => {
@@ -109,7 +109,10 @@ const EditProfileScreen = () => {
           <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
-              style={[styles.input, { flex: 1, marginBottom: 0, borderWidth: 0 }]}
+              style={[
+                styles.input,
+                { flex: 1, marginBottom: 0, borderWidth: 0 },
+              ]}
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
@@ -142,6 +145,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 24,
+    marginTop: 12,
   },
   headerText: {
     fontSize: 20,
