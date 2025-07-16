@@ -1,95 +1,104 @@
 import CombineLayout from '@/components/Component';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from 'expo-router';
+import React, { useContext, useMemo, useState } from 'react';
 import {
-    Image,
+    Alert,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
+import { MESSAGES } from '../constants/messages';
+import { CATEGORY_INFOS, PREDEFINED_INGREDIENTS } from '../constants/predefinedIngredients';
+import { AuthContext } from '../contexts/AuthContext';
+import axiosInstance from '../services/axiosInstance';
 
-// Define the type for an ingredient
-interface Ingredient {
-    id: string;
-    name: string;
-    category: 'animals' | 'seafood' | 'fruits_vegetables';
-}
-
-// Define the type for a navigation tab
-interface Tab {
-    name: string;
-    icon: keyof typeof Ionicons.glyphMap;
-}
+type PantryStackParamList = {
+    AIGenerate: undefined;
+};
 
 const App: React.FC = () => {
     const [ingredients, setIngredients] = useState<string[]>([]);
     const [newIngredient, setNewIngredient] = useState<string>('');
+    const { setMySelectIngredients, setMyRecipes } = useContext(AuthContext);
+    const navigation = useNavigation<NativeStackNavigationProp<PantryStackParamList>>();
+    // Tìm kiếm tất cả thể loại trong PREDEFINED_INGREDIENTS
+    const searchTerm = newIngredient.trim().toLowerCase();
 
-    // Sample data for predefined ingredients
-    const predefinedIngredients = {
-        animals: [
-            'Chicken',
-            'Duck',
-            'Goose',
-            'Turkey',
-            'Pork',
-            'Pork belly',
-            'Pork shoulder',
-            'Beef',
-            'Veal (young beef)',
-            'Lamb',
-            'Goat meat',
-            'Rabbit meat',
-            'Chicken eggs',
-            'Duck eggs',
-            'Quail eggs',
-        ],
-        seafood: [
-            'Shrimp',
-            'Prawn',
-            'Crab',
-            'Lobster',
-            'Crawfish',
-            'Squid',
-            'Cuttlefish',
-            'Octopus',
-            'Tuna',
-            'Clam',
-            'Scallop',
-            'Mussel',
-            'Oyster',
-            'Snail',
-            'Salmon',
-            'Mackerel',
-            'Anchovy',
-            'Catfish',
-        ],
-        fruits_vegetables: [],
-    };
+    // Tạo object chứa các ingredient đã lọc theo searchTerm cho từng category
+    const filteredPredefined = useMemo(() => {
+        const result: Record<typeof CATEGORY_INFOS[number]['key'], string[]> = {
+            animals: [],
+            seafood: [],
+            fruits_vegetables: [],
+        };
+        (Object.keys(PREDEFINED_INGREDIENTS) as typeof CATEGORY_INFOS[number]['key'][]).forEach((cat) => {
+            if (!searchTerm) {
+                result[cat] = PREDEFINED_INGREDIENTS[cat];
+            } else {
+                result[cat] = PREDEFINED_INGREDIENTS[cat].filter((ingredient) =>
+                    ingredient.toLowerCase().includes(searchTerm)
+                );
+            }
+        });
+        return result;
+    }, [searchTerm]);
 
     const addIngredient = () => {
         if (newIngredient.trim() !== '' && !ingredients.includes(newIngredient.trim())) {
             setIngredients([...ingredients, newIngredient.trim()]);
             setNewIngredient('');
         }
+        console.log('ingredients', ingredients);
+
     };
 
-    const selectPredefinedIngredient = (ingredient: string) => {
-        if (!ingredients.includes(ingredient)) {
+    // Toggle ingredient: add if not selected, remove if already selected
+    const togglePredefinedIngredient = (ingredient: string) => {
+        if (ingredients.includes(ingredient)) {
+            setIngredients(ingredients.filter((i) => i !== ingredient));
+        } else {
             setIngredients([...ingredients, ingredient]);
         }
     };
 
     const removeIngredient = (ingredientToRemove: string) => {
         setIngredients(ingredients.filter((ingredient) => ingredient !== ingredientToRemove));
-    };
+    }
 
-    const navigationTabs: Tab[] = [
-        { name: 'Pantry', icon: 'cube-outline' },
-    ];
+    const generateRecipe = async () => {
+
+        const cleanedIngredients = ingredients
+            .map((i) => i.trim())
+            .filter((i) => i !== '');
+
+        if (cleanedIngredients.length === 0) {
+            Alert.alert(MESSAGES.PANTRY_LABEL_ERROR, MESSAGES.PANTRY_LABEL_ERROR_DEFAULT);
+            return;
+        }
+
+        if (cleanedIngredients.length > 10) {
+            Alert.alert(MESSAGES.PANTRY_LABEL_ERROR_401, MESSAGES.PANTRY_LABEL_ERROR_DEFAULT_401);
+            return;
+        }
+
+        const payload = { ingredients: cleanedIngredients };
+        console.log('Payload gửi lên:', payload);
+        try {
+            const response = await axiosInstance.post('/ai/recipes/generate', payload);
+            setMySelectIngredients(cleanedIngredients);
+            setMyRecipes(response.data);
+            navigation.navigate('AIGenerate');
+            console.log('response', response.data);
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
 
     return (
         <CombineLayout>
@@ -98,22 +107,37 @@ const App: React.FC = () => {
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Add ingredients..."
+                        placeholder={MESSAGES.PANTRY_LABEL_SEARCH}
                         placeholderTextColor="#888"
                         value={newIngredient}
                         onChangeText={setNewIngredient}
                         onSubmitEditing={addIngredient}
                     />
-                    <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
+                    <TouchableOpacity style={styles.addButton} onPress={generateRecipe}>
                         <Text style={styles.addButtonText}>+ Add</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Selected Ingredients Section */}
                 <View style={styles.selectedIngredientsContainer}>
-                    <Text style={styles.selectedIngredientsTitle}>
-                        Selected ingredients ({ingredients.length})
-                    </Text>
+                    <View style={styles.selectedIngredientsHeader}>
+                        <Text style={styles.selectedIngredientsTitle}>
+                            Selected ingredients ({ingredients.length})
+                        </Text>
+                        {ingredients.length > 0 && (
+                            <TouchableOpacity
+                                style={styles.clearAllButton}
+                                onPress={() => setIngredients([])}
+                            >
+                                <Ionicons
+                                    name="close-circle"
+                                    size={20}
+                                    color="red"
+                                    style={styles.closeIcon}
+                                />
+                            </TouchableOpacity>
+                        )}
+                    </View>
                     <View style={styles.selectedIngredientsTags}>
                         {ingredients.map((ingredient, index) => (
                             <TouchableOpacity
@@ -135,88 +159,41 @@ const App: React.FC = () => {
 
                 {/* Ingredient Categories Section */}
                 <ScrollView style={styles.categoriesScroll}>
-                    {/* Main ingredients from animals */}
-                    <View style={styles.categoryCard}>
-                        <View style={styles.categoryHeader}>
-                            <Image
-                                source={{ uri: 'https://placehold.co/24x24/000000/FFFFFF?text=🍖' }}
-                                style={styles.categoryIcon}
-                            />
-                            <Text style={styles.categoryTitle}>Main ingredients from animals</Text>
+                    {CATEGORY_INFOS.map((cat) => (
+                        <View style={styles.categoryCard} key={cat.key}>
+                            <View style={styles.categoryHeader}>
+                                <Text style={styles.categoryTitle}>{cat.label}</Text>
+                            </View>
+                            <View style={styles.ingredientTags}>
+                                {filteredPredefined[cat.key].length === 0 ? (
+                                    <Text style={styles.noIngredientsText}>No ingredients found</Text>
+                                ) : (
+                                    filteredPredefined[cat.key].map((ingredient, index) => (
+                                        <TouchableOpacity
+                                            key={index}
+                                            style={[
+                                                styles.ingredientTag,
+                                                ingredients.includes(ingredient) && styles.ingredientTagSelected,
+                                            ]}
+                                            onPress={() => togglePredefinedIngredient(ingredient)}
+                                        >
+                                            <Text
+                                                style={[
+                                                    styles.ingredientTagText,
+                                                    ingredients.includes(ingredient) && styles.ingredientTagTextSelected,
+                                                ]}
+                                            >
+                                                {ingredient}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))
+                                )}
+                            </View>
                         </View>
-                        <View style={styles.ingredientTags}>
-                            {predefinedIngredients.animals.map((ingredient, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    style={[
-                                        styles.ingredientTag,
-                                        ingredients.includes(ingredient) && styles.ingredientTagSelected,
-                                    ]}
-                                    onPress={() => selectPredefinedIngredient(ingredient)}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.ingredientTagText,
-                                            ingredients.includes(ingredient) && styles.ingredientTagTextSelected,
-                                        ]}
-                                    >
-                                        {ingredient}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </View>
-
-                    {/* Seafood */}
-                    <View style={styles.categoryCard}>
-                        <View style={styles.categoryHeader}>
-                            <Image
-                                source={{ uri: 'https://placehold.co/24x24/000000/FFFFFF?text=🦐' }}
-                                style={styles.categoryIcon}
-                            />
-                            <Text style={styles.categoryTitle}>Seafood</Text>
-                        </View>
-                        <View style={styles.ingredientTags}>
-                            {predefinedIngredients.seafood.map((ingredient, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    style={[
-                                        styles.ingredientTag,
-                                        ingredients.includes(ingredient) && styles.ingredientTagSelected,
-                                    ]}
-                                    onPress={() => selectPredefinedIngredient(ingredient)}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.ingredientTagText,
-                                            ingredients.includes(ingredient) && styles.ingredientTagTextSelected,
-                                        ]}
-                                    >
-                                        {ingredient}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </View>
-
-                    {/* Fruits and Vegetables */}
-                    <View style={styles.categoryCard}>
-                        <View style={styles.categoryHeader}>
-                            <Image
-                                source={{ uri: 'https://placehold.co/24x24/000000/FFFFFF?text=🍎' }}
-                                style={styles.categoryIcon}
-                            />
-                            <Text style={styles.categoryTitle}>Fruits and Vegetables</Text>
-                        </View>
-                        <View style={styles.ingredientTags}>
-                            <Text style={styles.noIngredientsText}>No ingredients listed.</Text>
-                        </View>
-                    </View>
+                    ))}
                 </ScrollView>
-
-
             </View>
-        </CombineLayout>
+        </CombineLayout >
     );
 };
 
@@ -278,11 +255,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         marginTop: 20,
     },
+    selectedIngredientsHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
     selectedIngredientsTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         color: '#333',
-        marginBottom: 10,
     },
     selectedIngredientsTags: {
         flexDirection: 'row',
@@ -392,6 +374,17 @@ const styles = StyleSheet.create({
     navTabTextActive: {
         color: '#FF6347',
         fontWeight: 'bold',
+    },
+    clearAllButton: {
+        color: 'red',
+        borderRadius: 15,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        alignItems: 'center',
+    },
+    clearAllButtonText: {
+        color: '#fff',
+        fontSize: 14,
     },
 });
 

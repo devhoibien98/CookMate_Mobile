@@ -5,6 +5,11 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { AuthProvider } from '@/src/contexts/AuthContext';
+
+// Để khai báo một screen mới, bạn chỉ cần thêm một <Stack.Screen name="TênScreen" /> vào trong component Stack.
+// Ví dụ, để thêm một screen mới tên là "AllRecipes", bạn thêm dòng sau:
+// <Stack.Screen name="AllRecipes" />
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -18,12 +23,14 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
