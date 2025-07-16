@@ -1,7 +1,9 @@
 import CombineLayout from '@/components/Component';
-import { FontAwesome } from '@expo/vector-icons';
+import { AuthContext } from '@/src/contexts/AuthContext';
+import { EvilIcons, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -12,12 +14,15 @@ const API_URL = 'https://cookmate-api.lighttail.com/recipes?page=1&limit=100';
 const AllRecipes = () => {
   const [recipes, setRecipes] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [visibleCount, setVisibleCount] = React.useState(10);
+  const [currentPage, setCurrentPage] = React.useState(1);
   const [showLoginPrompt, setShowLoginPrompt] = React.useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'RecipeDetail'>>();
+  const router = useRouter();
+  const { token } = React.useContext(AuthContext);
+  const isLoggedIn = !!token;
 
-  // TODO: Thay thế bằng logic kiểm tra đăng nhập thực tế của app bạn
-  const isLoggedIn = false; // Giả lập chưa đăng nhập
+  const RECIPES_PER_PAGE = 10;
+  const totalPages = Math.ceil(recipes.length / RECIPES_PER_PAGE);
 
   React.useEffect(() => {
     fetch(API_URL)
@@ -29,6 +34,11 @@ const AllRecipes = () => {
       .catch(() => setLoading(false));
   }, []);
 
+  // Tính toán recipes cho trang hiện tại
+  const paginatedRecipes = recipes.slice((currentPage - 1) * RECIPES_PER_PAGE, currentPage * RECIPES_PER_PAGE);
+
+  // Khi chưa login, chỉ cho xem trang đầu tiên và không cho chuyển trang
+
   return (
     <CombineLayout>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -39,7 +49,7 @@ const AllRecipes = () => {
           ) : (
             <>
               <View style={styles.recipeGrid}>
-                {recipes.slice(0, visibleCount).reduce((rows: any[][], recipe: any, idx: number) => {
+                {paginatedRecipes.reduce((rows: any[][], recipe: any, idx: number) => {
                   if (idx % 2 === 0) rows.push([recipe]);
                   else rows[rows.length - 1].push(recipe);
                   return rows;
@@ -69,16 +79,31 @@ const AllRecipes = () => {
                   </View>
                 ))}
               </View>
-              {recipes.length > visibleCount && (
+              {/* Pagination controls chỉ hiện khi đã login */}
+              {isLoggedIn && (
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
+                  <TouchableOpacity
+                    style={{ opacity: currentPage === 1 ? 0.5 : 1 }}
+                    disabled={currentPage === 1}
+                    onPress={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  >
+                    <EvilIcons name="arrow-left" size={24} color="black" />
+                  </TouchableOpacity>
+                  <Text style={{ marginHorizontal: 16, fontWeight: 'bold' }}>{currentPage} / {totalPages || 1}</Text>
+                  <TouchableOpacity
+                    style={{ opacity: currentPage === totalPages ? 0.5 : 1 }}
+                    disabled={currentPage === totalPages}
+                    onPress={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  >
+                    <EvilIcons name="arrow-right" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+              )}
+              {/* Nếu chưa login, vẫn giữ nút More như cũ */}
+              {!isLoggedIn && recipes.length > RECIPES_PER_PAGE && (
                 <TouchableOpacity
                   style={styles.moreButton}
-                  onPress={() => {
-                    if (!isLoggedIn) {
-                      setShowLoginPrompt(true);
-                    } else {
-                      setVisibleCount(visibleCount + 10);
-                    }
-                  }}
+                  onPress={() => setShowLoginPrompt(true)}
                 >
                   <Text style={styles.moreButtonText}>More</Text>
                 </TouchableOpacity>
@@ -86,9 +111,14 @@ const AllRecipes = () => {
               {showLoginPrompt && (
                 <View style={styles.loginPromptContainer}>
                   <Text style={styles.loginPromptText}>Please log in to see more recipes.</Text>
-                  {/* Có thể thêm nút chuyển hướng sang trang đăng nhập ở đây */}
                   <TouchableOpacity onPress={() => setShowLoginPrompt(false)}>
                     <Text style={{ color: 'blue', marginTop: 8 }}>Close</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => {
+                    setShowLoginPrompt(false);
+                    router.push('/profile');
+                  }}>
+                    <Text style={{ color: '#E44B15', marginTop: 8, fontWeight: 'bold' }}>Go to Login</Text>
                   </TouchableOpacity>
                 </View>
               )}
