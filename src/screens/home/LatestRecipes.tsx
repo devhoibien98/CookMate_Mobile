@@ -1,6 +1,6 @@
-import { FontAwesome } from '@expo/vector-icons';
 import React from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
 interface Recipe {
   id: string;
@@ -20,42 +20,43 @@ interface LatestRecipesProps {
 
 const AVATAR_PLACEHOLDER = require('../../../assets/images/food-icon.png');
 
-const LatestRecipes: React.FC<LatestRecipesProps> = ({ recipes, onRecipePress }) => (
-  !recipes || recipes.length === 0 ? null :
-  <FlatList
-    data={recipes}
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    keyExtractor={item => item.id}
-    contentContainerStyle={{ paddingRight: 16 }}
-    renderItem={({ item }) => (
-      <TouchableOpacity style={styles.card} onPress={() => onRecipePress && onRecipePress(item.id)}>
-        <View style={styles.imageWrapper}>
-          <Image source={item.image} style={styles.image} />
-          <View style={styles.badgeRow}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{item.time}</Text>
-            </View>
-            {item.tag ? ( 
+const LatestRecipes: React.FC<LatestRecipesProps> = ({ recipes, onRecipePress }) => {
+  return !recipes || recipes.length === 0 ? null : (
+    <FlatList
+      data={recipes}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={item => item.id}
+      contentContainerStyle={{ paddingRight: 16 }}
+      renderItem={({ item }) => (
+        <TouchableOpacity style={styles.card} onPress={() => onRecipePress && onRecipePress(item.id)}>
+          <View style={styles.imageWrapper}>
+            <Image source={item.image} style={styles.image} />
+            <View style={styles.badgeRow}>
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{item.tag}</Text>
+                <Text style={styles.badgeText}>{item.time}</Text>
               </View>
-            ) : null}
+              {item.tag ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{item.tag}</Text>
+                </View>
+              ) : null}
+            </View>
+            <View style={styles.ratingBadge}>
+              <FontAwesome name="star" size={16} color="#FFA726" style={styles.starIcon} />
+              <Text style={styles.ratingText}>{typeof item.rating === 'number' ? item.rating.toFixed(1) : '0.0'}</Text>
+            </View>
           </View>
-          <View style={styles.ratingBadge}>
-            <FontAwesome name="star" size={16} color="#FFA726" style={styles.starIcon} />
-            <Text style={styles.ratingText}>{typeof item.rating === 'number' ? item.rating.toFixed(1) : '0.0'}</Text>
+          <Text style={styles.name}>{item.title}</Text>
+          <View style={styles.authorRow}>
+            <Image source={item.avatar || AVATAR_PLACEHOLDER} style={styles.avatar} />
+            <Text style={styles.author}>{item.author}</Text>
           </View>
-        </View>
-        <Text style={styles.name}>{item.title}</Text>
-        <View style={styles.authorRow}>
-          <Image source={item.avatar || AVATAR_PLACEHOLDER} style={styles.avatar} />
-          <Text style={styles.author}>{item.author}</Text>
-        </View>
-      </TouchableOpacity>
-    )}
-  />
-);
+        </TouchableOpacity>
+      )}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
   card: { width: 160, marginRight: 12, borderRadius: 12, paddingLeft: 16 },
