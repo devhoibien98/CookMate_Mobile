@@ -1,7 +1,6 @@
 import { AuthContext } from "@/src/contexts/AuthContext";
 import LoginScreen from "@/src/screens/auth/LoginScreen";
 import SignUpScreen from "@/src/screens/auth/SignUpScreen";
-import DietPreferencesScreen from "@/src/screens/profile/DietPreferencesScreen";
 import EditProfileScreen from "@/src/screens/profile/EditProfileScreen";
 import HistoryScreen from "@/src/screens/profile/HistoryScreen";
 import UserProfile from "@/src/screens/profile/UserProfile";
@@ -35,7 +34,6 @@ export default function ProfileStack() {
           <Stack.Screen name="UserProfile" component={UserProfile} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="History" component={HistoryScreen} />
-          <Stack.Screen name="DietPreferences" component={DietPreferencesScreen} />
         </>
       ) : (
         <>
