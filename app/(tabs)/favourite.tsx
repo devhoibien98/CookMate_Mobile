@@ -1,11 +1,11 @@
 import CombineLayout from '@/components/Component';
+import FavoriteButton from '@/components/FavoriteButton';
+import { useFavorites } from '@/hooks/useFavorites';
 import { FontAwesome } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import FavoriteButton from '@/components/FavoriteButton';
-import { useFavorites } from '@/hooks/useFavorites';
-import { useFocusEffect } from '@react-navigation/native';
 
 const FavouriteScreen = () => {
     const router = useRouter();

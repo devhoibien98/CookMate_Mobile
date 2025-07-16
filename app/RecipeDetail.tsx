@@ -1,10 +1,10 @@
 import FavoriteButton from '@/components/FavoriteButton';
+import { Recipe, useFavorites } from '@/hooks/useFavorites';
 import { Feather, FontAwesome } from '@expo/vector-icons';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import * as React from "react";
 import { useLayoutEffect } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useFavorites, Recipe } from '@/hooks/useFavorites';
 
 const RecipeDetail = () => {
   const route = useRoute();
@@ -67,11 +67,10 @@ const RecipeDetail = () => {
   const recipeRating = recipe.aiRating || recipe.rating || 0;
   const recipeCookingTime = recipe.cookingTime || 0;
   const recipeIngredients = recipe.ingredients || [];
-  const recipeImage = recipe.image || require("../assets/images/recipedetail.png");
 
   return (
     <ScrollView>
-      <Image style={styles.image} resizeMode="cover" source={recipeImage} />
+      <Image style={styles.image} resizeMode="cover" source={require("../assets/images/recipedetail.png")} />
 
       {/* Card Intro */}
       <View style={styles.cardIntro}>

@@ -1,5 +1,4 @@
 import CombineLayout from "@/components/Component";
-import { useFavorites } from "@/hooks/useFavorites";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -60,8 +59,7 @@ const historyData = [
 
 const HistoryScreen = () => {
   const router = useRouter();
-  const { favorites } = useFavorites();
-  console.log('favorites', favorites)
+
   return (
     <CombineLayout>
       <SafeAreaView style={{ flex: 1 }}>

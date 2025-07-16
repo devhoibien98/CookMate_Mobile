@@ -7,7 +7,6 @@ export interface Recipe {
     id: string | number;
     name?: string;
     title?: string;
-    image: any;
     rating?: number;
     aiRating?: number;
     ingredients?: string[] | number;
@@ -19,10 +18,10 @@ export interface Recipe {
         fat?: number;
         carbs?: number;
     };
-    cookingSteps?: Array<{
+    cookingSteps?: {
         stepNumber: number;
         description: string;
-    }>;
+    }[];
 }
 
 export const useFavorites = () => {
@@ -49,11 +48,6 @@ export const useFavorites = () => {
             return false;
         }
 
-        if (!recipe.image) {
-            console.error('Invalid recipe: missing image');
-            return false;
-        }
-
         return true;
     }, []);
 
@@ -63,7 +57,6 @@ export const useFavorites = () => {
             id: recipe.id,
             name: recipe.name || recipe.title || 'Tên món ăn không xác định',
             title: recipe.title || recipe.name || 'Tên món ăn không xác định',
-            image: recipe.image,
             rating: recipe.rating || recipe.aiRating || 0,
             aiRating: recipe.aiRating || recipe.rating || 0,
             ingredients: recipe.ingredients || [],

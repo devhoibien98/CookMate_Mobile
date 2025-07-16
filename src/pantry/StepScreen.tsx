@@ -1,3 +1,5 @@
+import FavoriteButton from '@/components/FavoriteButton';
+import { useFavorites } from '@/hooks/useFavorites';
 import { Feather, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useFocusEffect } from 'expo-router';
@@ -26,6 +28,7 @@ const StepScreen = () => {
     const { id, recipe } = route.params as { id: string, recipe: Recipe };
     const [steps, setSteps] = useState<Step[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const { toggleFavorite, isFavorite } = useFavorites();
 
     useFocusEffect(
         useCallback(() => {
@@ -70,6 +73,11 @@ const StepScreen = () => {
                             <Text style={styles.timeText}>{recipe?.cookingTime ? `${recipe?.cookingTime} mins` : ''}</Text>
                         </View>
                     </View>
+                    <FavoriteButton
+                        isFavorite={isFavorite(recipe.id)}
+                        onPress={() => toggleFavorite(recipe)}
+                        style={{ marginLeft: 8 }}
+                    />
                 </View>
             </View>
             {/* Instruction */}
