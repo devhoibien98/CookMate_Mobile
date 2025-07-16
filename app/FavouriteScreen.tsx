@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const STORAGE_KEY = 'favoriteRecipes';
 
@@ -13,15 +14,17 @@ const FavouriteScreen = () => {
     const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
 
     // Load favorites from AsyncStorage
-    React.useEffect(() => {
-        const loadFavorites = async () => {
-            try {
-                const json = await AsyncStorage.getItem(STORAGE_KEY);
-                if (json) setFavorites(JSON.parse(json));
-            } catch (e) { }
-        };
-        loadFavorites();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            const loadFavorites = async () => {
+                try {
+                    const json = await AsyncStorage.getItem(STORAGE_KEY);
+                    if (json) setFavorites(JSON.parse(json));
+                } catch (e) { }
+            };
+            loadFavorites();
+        }, [])
+    );
 
     // Save favorites to AsyncStorage
     const saveFavorites = async (newFavs: any[]) => {
