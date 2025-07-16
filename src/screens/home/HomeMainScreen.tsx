@@ -101,9 +101,7 @@ export default function HomeMainScreen() {
           title: recipe.name,
           image: require("../../../assets/images/food-img-homepage.png"),
           rating: recipe.aiRating || 0,
-          ingredientsInfo: recipe.ingredients
-            ? `You have all ${recipe.ingredients.length} ingredients`
-            : "",
+          time: recipe.cookingTime || 0,
         });
         navigation.navigate("RecipeDetail", { recipe });
       }
