@@ -4,57 +4,30 @@ import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useContext } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFavorites } from "@/hooks/useFavorites";
-import { clearAllAsyncStorage, debugAsyncStorage } from "@/utils/asyncStorageUtils";
 
 const UserProfile = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
-  const { signOut } = useContext(AuthContext);
-  const { clearFavoritesStorage } = useFavorites();
+  const { signOut, user } = useContext(AuthContext);
 
-  const handleClearFavorites = () => {
-    Alert.alert(
-      "Clear Favorites",
-      "Are you sure you want to clear all favorite recipes?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear",
-          style: "destructive",
-          onPress: async () => {
-            await clearFavoritesStorage();
-            Alert.alert("Success", "Favorites cleared successfully!");
-          },
-        },
-      ]
-    );
-  };
+  const [fullUser, setFullUser] = useState(user);
 
-  const handleClearAllStorage = () => {
-    Alert.alert(
-      "Clear All Data",
-      "⚠️ This will clear ALL app data including favorites, preferences, and cache. Are you sure?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear All",
-          style: "destructive",
-          onPress: async () => {
-            await clearAllAsyncStorage();
-            Alert.alert("Success", "All data cleared successfully!");
-          },
-        },
-      ]
-    );
-  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await getUserById(user.userId);
+        setFullUser(data);
+      } catch (err) {
+        console.log("Không thể lấy thông tin user:", err);
+      }
+    };
 
-  const handleDebugStorage = async () => {
-    await debugAsyncStorage();
-    Alert.alert("Debug", "Check console for AsyncStorage contents");
-  };
+    if (user.userId) {
+      fetchUser();
+    }
+  }, [user.userId]);
 
   return (
     <View style={styles.wrapper}>
@@ -101,35 +74,6 @@ const UserProfile = () => {
             <Text style={styles.optionText}>Diet Preferences</Text>
             <Ionicons name="chevron-forward-outline" size={20} color="#000" />
           </TouchableOpacity>
-
-          {/* Debug Section */}
-          <View style={styles.debugSection}>
-            <Text style={styles.debugTitle}>🔧 Debug Tools</Text>
-
-            <TouchableOpacity
-              style={styles.debugButton}
-              onPress={handleDebugStorage}
-            >
-              <Ionicons name="bug-outline" size={20} color="#007AFF" />
-              <Text style={styles.debugButtonText}>Debug AsyncStorage</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.debugButton}
-              onPress={handleClearFavorites}
-            >
-              <Ionicons name="heart-outline" size={20} color="#FF9500" />
-              <Text style={styles.debugButtonText}>Clear Favorites</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.debugButton}
-              onPress={handleClearAllStorage}
-            >
-              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-              <Text style={styles.debugButtonText}>Clear All Data</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </SafeAreaView>
 
@@ -230,37 +174,6 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     fontSize: 14,
     color: "#ff080c",
-    fontWeight: "500",
-  },
-  debugSection: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderColor: "rgba(0,0,0,0.1)",
-    backgroundColor: "#f8f9fa",
-  },
-  debugTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 12,
-  },
-  debugButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.1)",
-  },
-  debugButtonText: {
-    marginLeft: 12,
-    fontSize: 14,
-    color: "#333",
     fontWeight: "500",
   },
 });

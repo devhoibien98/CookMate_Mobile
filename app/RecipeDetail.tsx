@@ -1,132 +1,78 @@
 import FavoriteButton from '@/components/FavoriteButton';
 import { Feather, FontAwesome } from '@expo/vector-icons';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from "react";
 import { useLayoutEffect } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useFavorites, Recipe } from '@/hooks/useFavorites';
+
+
 
 const RecipeDetail = () => {
   const route = useRoute();
+  const { recipe } = route.params as { recipe: any };
+  const [isFavorite, setIsFavorite] = React.useState(false);
   const navigation = useNavigation();
-  const { toggleFavorite, isFavorite, refreshFavorites } = useFavorites();
 
-  // Get recipe from route params
-  const recipeParam = (route.params as any)?.recipe;
-  let recipe: Recipe | null = null;
-
-  if (recipeParam) {
-    try {
-      if (typeof recipeParam === 'string') {
-        // Check if it's already a JSON string
-        if (recipeParam.startsWith('{') || recipeParam.startsWith('[')) {
-          recipe = JSON.parse(recipeParam);
-        } else {
-          console.error('Invalid JSON string:', recipeParam);
-          recipe = null;
-        }
-      } else if (typeof recipeParam === 'object' && recipeParam !== null) {
-        // It's already an object, use it directly
-        recipe = recipeParam;
-      } else {
-        console.error('Invalid recipe param type:', typeof recipeParam);
-        recipe = null;
-      }
-    } catch (error) {
-      console.error('Error parsing recipe:', error);
-      recipe = null;
-    }
-  }
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ title: 'Chi tiết món ăn' });
+  useLayoutEffect (() => {
+    navigation.setOptions({ title: 'Recipe Detail'});
   }, [navigation]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // Refresh favorites when screen is focused
-      refreshFavorites();
-    }, [refreshFavorites])
-  );
-
   if (!recipe) {
-    return (
-      <ScrollView>
-        <Text style={{ margin: 32, textAlign: 'center' }}>Không tìm thấy món ăn.</Text>
-      </ScrollView>
-    );
+    return <ScrollView><Text style={{margin: 32, textAlign: 'center'}}>Recipe not found.</Text></ScrollView>;
   }
-
-  const handleToggleFavorite = () => {
-    toggleFavorite(recipe!);
-  };
-
-  // Handle data inconsistencies - some screens pass 'title' instead of 'name'
-  const recipeName = recipe.name || recipe.title || 'Tên món ăn không xác định';
-  const recipeDescription = recipe.description || '';
-  const recipeRating = recipe.aiRating || recipe.rating || 0;
-  const recipeCookingTime = recipe.cookingTime || 0;
-  const recipeIngredients = recipe.ingredients || [];
-  const recipeImage = recipe.image || require("../assets/images/recipedetail.png");
 
   return (
     <ScrollView>
-      <Image style={styles.image} resizeMode="cover" source={recipeImage} />
+      <Image style={styles.image} resizeMode="cover" source={require("../assets/images/recipedetail.png")} />
 
       {/* Card Intro */}
       <View style={styles.cardIntro}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{recipeName}</Text>
-            <Text style={styles.subtitle}>{recipeDescription}</Text>
+            <Text style={styles.title}>{recipe.name}</Text>
+            <Text style={styles.subtitle}>{recipe.description || ''}</Text>
             <View style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}>
-              {[1, 2, 3, 4, 5].map(i => (
-                <FontAwesome key={i} name="star" size={18} color={i <= Math.round(recipeRating) ? "#FFD700" : "#eee"} />
+              {[1,2,3,4,5].map(i => (
+                <FontAwesome key={i} name="star" size={18} color={i <= Math.round(recipe.aiRating) ? "#FFD700" : "#eee"} />
               ))}
               <Feather name="clock" size={16} color="#888" style={{ marginLeft: 16 }} />
-              <Text style={styles.timeText}>{recipeCookingTime ? `${recipeCookingTime} phút` : 'Chưa rõ'}</Text>
+              <Text style={styles.timeText}>{recipe.cookingTime ? `${recipe.cookingTime} mins` : ''}</Text>
             </View>
           </View>
           <FavoriteButton
-            isFavorite={isFavorite(recipe.id)}
-            onPress={handleToggleFavorite}
+            isFavorite={isFavorite}
+            onPress={() => setIsFavorite(fav => !fav)}
             style={{ marginLeft: 8 }}
           />
         </View>
       </View>
 
       {/* Ingredients */}
-      <Text style={styles.sectionTitle}>Nguyên liệu</Text>
+      <Text style={styles.sectionTitle}>Ingredients</Text>
       <View style={styles.ingredientTable}>
-        {Array.isArray(recipeIngredients) && recipeIngredients.length > 0 ? (
-          recipeIngredients.map((name: string, idx: number, arr: string[]) => (
-            <View key={`${name}-${idx}`} style={[styles.ingredientRow, idx < arr.length - 1 && styles.ingredientRowBorder]}>
-              <Text style={styles.ingredientName}>{name}</Text>
-              <Text style={styles.ingredientValue}></Text>
-            </View>
-          ))
-        ) : (
-          <View style={styles.ingredientRow}>
-            <Text style={styles.ingredientName}>Chưa có thông tin nguyên liệu</Text>
+        {(recipe.ingredients || []).map((name: string, idx: number, arr: string[]) => (
+          <View key={name} style={[styles.ingredientRow, idx < arr.length - 1 && styles.ingredientRowBorder]}>
+            <Text style={styles.ingredientName}>{name}</Text>
             <Text style={styles.ingredientValue}></Text>
           </View>
-        )}
+        ))}
       </View>
 
       {/* Nutrition */}
-      <Text style={styles.sectionTitle}>Dinh dưỡng</Text>
+      <Text style={styles.sectionTitle}>Nutrition</Text>
       <View style={styles.cardNutrition}>
         <View style={styles.nutritionRow}>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Calo</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.calories ?? '--'}</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Cal</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.calories ?? '--'}</Text></View>
           <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Protein</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.protein ?? '--'}g</Text></View>
-          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Chất béo</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.fat ?? '--'}g</Text></View>
+          <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Fat</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.fat ?? '--'}g</Text></View>
           <View style={styles.nutritionCol}><Text style={styles.nutritionLabel}>Carb</Text><Text style={styles.nutritionValueBold}>{recipe.nutritionInfo?.carbs ?? '--'}g</Text></View>
+
         </View>
       </View>
 
       {/* Instruction */}
-      <Text style={styles.sectionTitle}>Hướng dẫn</Text>
-      {(recipe.cookingSteps && recipe.cookingSteps.length > 0 ? recipe.cookingSteps : [{ stepNumber: 1, description: 'Chưa có hướng dẫn.' }]).map((step: any) => (
+      <Text style={styles.sectionTitle}>Instruction</Text>
+      {(recipe.cookingSteps && recipe.cookingSteps.length > 0 ? recipe.cookingSteps : [{stepNumber: 1, description: 'No steps.'}]).map((step: any) => (
         <View key={step.stepNumber} style={styles.cardStep}>
           <Text style={styles.stepNumber}>{step.stepNumber}</Text>
           <Text style={styles.stepText}>{step.description}</Text>
@@ -200,11 +146,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
     backgroundColor: "#f5f5f5",
-    borderRadius: 14,
+    borderRadius: 8,
     marginRight: 12,
-    color: "#333"
+    marginTop: 2
   },
-  stepText: { flex: 1, fontSize: 15, lineHeight: 22, color: "#333" }
+  stepText: { fontSize: 15, color: "#222", flex: 1 }
 });
 
 export default RecipeDetail;

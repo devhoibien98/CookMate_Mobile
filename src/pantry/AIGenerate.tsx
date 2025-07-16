@@ -4,22 +4,12 @@ import { useNavigation } from 'expo-router';
 import * as React from "react";
 import { useContext } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { MESSAGES } from '../constants/messages';
-
 import { AuthContext } from '../contexts/AuthContext';
 
-interface Recipe {
-    id: string;
-    name: string;
-    cookingTime: number;
-    aiRating: number;
-    description: string;
-}
 
 export type RootStackParamList = {
     StepScreen: {
         id: string;
-        recipe: Recipe;
     };
 };
 
@@ -56,7 +46,7 @@ const AIGenerate = () => {
                     </Text>
                     <View style={styles.recipeGrid}>
                         {recipeRows.length === 0 ? (
-                            <Text style={styles.noRecipeText}>{MESSAGES.AIGENERATE_LABEL_ERROR}</Text>
+                            <Text style={styles.noRecipeText}>No recipes found for your selected ingredients.</Text>
                         ) : (
                             recipeRows.map((row, rowIndex) => (
                                 <View style={styles.recipeRow} key={rowIndex}>
@@ -65,7 +55,7 @@ const AIGenerate = () => {
                                             key={recipe.id || colIndex}
                                             style={styles.recipeCard}
                                             activeOpacity={0.7}
-                                            onPress={() => navigation.navigate('StepScreen', { id: recipe.id, recipe: recipe })}
+                                            onPress={() => navigation.navigate('StepScreen', { id: recipe.id, name: recipe.name })}
                                         >
                                             <Image
                                                 style={styles.recipeImage}
