@@ -52,10 +52,6 @@ const TonightRecipe: React.FC<TonightRecipeProps> = ({ recipes, onRecipePress })
           </View>
         </View>
         <Text style={styles.name}>{recipe.title}</Text>
-        <View style={styles.authorRow}>
-          <Image source={recipe.avatar || AVATAR_PLACEHOLDER} style={styles.avatar} />
-          <Text style={styles.author}>{recipe.author}</Text>
-        </View>
       </TouchableOpacity>
       <View style={styles.indicatorContainer}>
         {recipes.map((_, idx) => (

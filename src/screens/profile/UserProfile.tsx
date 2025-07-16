@@ -67,15 +67,6 @@ const UserProfile = () => {
             <Text style={styles.optionText}>History</Text>
             <Ionicons name="chevron-forward-outline" size={20} color="#000" />
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.optionRow}
-            onPress={() => navigation.navigate("DietPreferences")}
-          >
-            <FontAwesome5 name="stethoscope" size={20} color="#000" />
-            <Text style={styles.optionText}>Diet Preferences</Text>
-            <Ionicons name="chevron-forward-outline" size={20} color="#000" />
-          </TouchableOpacity>
         </View>
       </SafeAreaView>
 
