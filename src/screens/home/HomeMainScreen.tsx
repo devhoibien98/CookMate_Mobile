@@ -92,22 +92,16 @@ export default function HomeMainScreen() {
   };
 
   const handleRecipePress = async (id: string) => {
-    console.log("user:", user);
-    if (!user?.id) {
-      alert("Bạn cần đăng nhập!");
-      return;
-    }
     try {
       const data: RecipesResponse = await fetchRecipes(1, 10);
-      console.log("data:", data);
       const recipe = (data.data || []).find((item: any) => item.id === id);
       if (recipe) {
-        await addToHistory(user.id, {
+        await addToHistory(user.userId, {
           id: recipe.id,
           title: recipe.name,
           image: require("../../../assets/images/food-img-homepage.png"),
           rating: recipe.aiRating || 0,
-          time: recipe.cookingTime || 0,
+          time: recipe.cookingTime ? `${recipe.cookingTime} min` : "",
         });
         navigation.navigate("RecipeDetail", { recipe });
       }

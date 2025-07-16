@@ -77,8 +77,8 @@ const AllRecipes = () => {
                           key={recipe.id}
                           activeOpacity={0.7}
                           onPress={() => {
-                            if (user?.id) {
-                              addToHistory(user.id, {
+                            if (user?.userId) {
+                              addToHistory(user.userId, {
                                 id: recipe.id,
                                 title: recipe.name,
                                 image: require("../assets/images/recipe-suggestion.png"),

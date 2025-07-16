@@ -22,8 +22,8 @@ const HistoryScreen = () => {
   const { user } = React.useContext(AuthContext);
 
   useEffect(() => {
-    if (isFocused && user?.id) {
-      getHistory(user.id).then(setHistoryData);
+    if (isFocused && user?.userId) {
+      getHistory(user.userId).then(setHistoryData);
     }
   }, [isFocused, user]);
 
@@ -38,42 +38,37 @@ const HistoryScreen = () => {
         </View>
 
         <ScrollView style={styles.list}>
-          {historyData.map(
-            (item: any) => (
-              console.log(item),
-              (
-                <TouchableOpacity
-                  key={item.id}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/RecipeDetail",
-                      params: { id: item.id },
-                    })
-                  }
-                  activeOpacity={0.7}
-                  style={styles.card}
-                >
-                  <Image source={item.image} style={styles.image} />
-                  <View style={styles.info}>
-                    <Text style={styles.name}>{item.title}</Text>
-                    <View style={styles.rating}>
-                      {[...Array(5)].map((_, i) => (
-                        <Ionicons
-                          key={i}
-                          name={i < item.rating ? "star" : "star-outline"}
-                          size={16}
-                          color="#FFD700"
-                        />
-                      ))}
-                    </View>
-                    <Text style={styles.ingredients}>
-                      {item.ingredientsInfo}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              )
-            )
-          )}
+          {historyData.map((item: any) => (
+            <TouchableOpacity
+              key={item.id}
+              onPress={() =>
+                router.push({
+                  pathname: "/RecipeDetail",
+                  params: { id: item.id },
+                })
+              }
+              activeOpacity={0.7}
+              style={styles.card}
+            >
+              <Image source={item.image} style={styles.image} />
+              <View style={styles.info}>
+                <Text style={styles.name}>{item.title}</Text>
+                <View style={styles.rating}>
+                  {[...Array(5)].map((_, i) => (
+                    <Ionicons
+                      key={i}
+                      name={i < item.rating ? "star" : "star-outline"}
+                      size={16}
+                      color="#FFD700"
+                    />
+                  ))}
+                </View>
+                <Text style={styles.ingredients}>
+                  {item.time || "Không có thông tin thời gian"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       </SafeAreaView>
     </CombineLayout>
