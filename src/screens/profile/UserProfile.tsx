@@ -86,7 +86,6 @@ const UserProfile = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
