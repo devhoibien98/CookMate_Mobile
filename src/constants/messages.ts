@@ -21,7 +21,10 @@ export const MESSAGES = {
     PANTRY_LABEL_ERROR_401: 'Quá nhiều nguyên liệu',
     PANTRY_LABEL_ERROR_DEFAULT_401: 'Chỉ được tối đa 10 nguyên liệu.',
     PANTRY_LABEL_SEARCH: 'Tìm nguyên liệu...',
+    PANTRY_LABEL_ERROR_TIMEOUT: 'Oops',
+    PANTRY_LABEL_ERROR_TIMEOUT_DEFAULT: 'We\'re a bit busy cooking up other recipes. Please try again in a few minutes.',
 
-
+    // AIGenerate messages
+    AIGENERATE_LABEL_ERROR: 'No recipes found for your selected ingredients.',
 
 };
