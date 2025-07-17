@@ -22,12 +22,12 @@ export interface RecipeSuggestion {
 }
 
 class AIService {
-  private model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  private model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   // Chat với AI assistant
   async chatWithAI(message: string): Promise<string> {
     try {
-      const prompt = `Bạn là một AI assistant chuyên về nấu ăn và công thức nấu ăn. Hãy trả lời câu hỏi sau một cách hữu ích và thân thiện: ${message}`;
+      const prompt = `Bạn là một AI assistant chuyên về nấu ăn và công thức nấu ăn. Hãy trả lời câu hỏi sau một cách hữu ích và thân thiện bằng tiếng Việt: ${message}`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
@@ -38,20 +38,20 @@ class AIService {
     }
   }
 
-  // Đề xuất công thức dựa trên nguyên liệu
+  // Gợi ý công thức từ nguyên liệu
   async suggestRecipeFromIngredients(
     ingredients: string[]
   ): Promise<RecipeSuggestion> {
     try {
       const prompt = `Dựa trên các nguyên liệu sau: ${ingredients.join(", ")}, 
       hãy đề xuất một công thức nấu ăn phù hợp. 
-      Trả lời theo định dạng JSON với các trường:
+      Trả lời theo định dạng JSON với các trường sau:
       {
         "name": "tên món ăn",
         "ingredients": ["danh sách nguyên liệu cần thiết"],
         "cookingTime": "thời gian nấu",
         "difficulty": "Easy/Medium/Hard",
-        "instructions": ["từng bước nấu ăn"]
+        "instructions": ["từng bước nấu ăn chi tiết"]
       }`;
 
       const result = await this.model.generateContent(prompt);
@@ -64,10 +64,10 @@ class AIService {
         return JSON.parse(jsonMatch[0]);
       }
 
-      throw new Error("Không thể parse phản hồi từ AI");
+      throw new Error("Không thể phân tích phản hồi từ AI");
     } catch (error) {
       console.error("Error in recipe suggestion:", error);
-      throw new Error("Không thể tạo đề xuất công thức. Vui lòng thử lại.");
+      throw new Error("Không thể tạo gợi ý công thức. Vui lòng thử lại.");
     }
   }
 
@@ -80,7 +80,7 @@ class AIService {
       const prompt = `Hãy phân tích thông tin dinh dưỡng của món "${recipeName}" với các nguyên liệu: ${ingredients.join(
         ", "
       )}. 
-      Bao gồm calories, protein, carbs, fat và các vitamin/khoáng chất chính.`;
+      Bao gồm calories, protein, carbs, fat và các vitamin/khoáng chất chính. Trả lời bằng tiếng Việt.`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
@@ -95,7 +95,7 @@ class AIService {
   async suggestIngredientSubstitutes(ingredient: string): Promise<string[]> {
     try {
       const prompt = `Hãy đề xuất 3-5 nguyên liệu có thể thay thế cho "${ingredient}" trong nấu ăn. 
-      Trả lời dưới dạng danh sách, mỗi mục trên một dòng.`;
+      Trả lời dưới dạng danh sách, mỗi mục trên một dòng, bằng tiếng Việt.`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
@@ -118,7 +118,7 @@ class AIService {
   async getCookingTips(technique: string): Promise<string> {
     try {
       const prompt = `Hãy chia sẻ các mẹo và kỹ thuật nấu ăn về "${technique}". 
-      Bao gồm cách thực hiện đúng cách và những lưu ý quan trọng.`;
+      Bao gồm cách thực hiện đúng cách và những lưu ý quan trọng. Trả lời bằng tiếng Việt.`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
