@@ -28,7 +28,6 @@ export default function TabLayout() {
         }),
       }}
     >
-
       <Tabs.Screen
         name="index"
         options={{
@@ -55,6 +54,16 @@ export default function TabLayout() {
           title: "Favourite",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="favorite" size={28} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="ai-assistant"
+        options={{
+          title: "AI Chef",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="smart-toy" size={28} color={color} />
           ),
         }}
       />
