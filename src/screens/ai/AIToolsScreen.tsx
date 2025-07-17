@@ -92,14 +92,10 @@ export default function AIToolsScreen() {
             <Text style={styles.description}>
               Enter dish name and ingredients (separated by :)
             </Text>
-            <Text style={styles.example}>
-              Example: Beef Pho: Beef, pho noodles, onion, cilantro
-            </Text>
             <TextInput
               style={styles.input}
               value={inputText}
               onChangeText={setInputText}
-              placeholder="Dish name: ingredient 1, ingredient 2..."
               multiline
             />
             <TouchableOpacity
