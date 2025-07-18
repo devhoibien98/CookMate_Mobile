@@ -1,7 +1,7 @@
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { getUserById } from "@/src/services/userService";
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
@@ -10,7 +10,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const UserProfile = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const { signOut, user } = useContext(AuthContext);
 
   const [fullUser, setFullUser] = useState(user);
@@ -47,8 +48,12 @@ const UserProfile = () => {
                 </Text>
               </View>
               <View style={styles.userInfo}>
-                <Text style={styles.userName}>{fullUser?.username || "User Name"}</Text>
-                <Text style={styles.userEmail}>{fullUser?.email || "email@example.com"}</Text>
+                <Text style={styles.userName}>
+                  {fullUser?.username || "User Name"}
+                </Text>
+                <Text style={styles.userEmail}>
+                  {fullUser?.email || "email@example.com"}
+                </Text>
                 <TouchableOpacity
                   style={styles.editButton}
                   onPress={() => navigation.navigate("EditProfile")}
@@ -70,7 +75,12 @@ const UserProfile = () => {
         </View>
       </SafeAreaView>
 
-      <TouchableOpacity style={styles.logoutRow} onPress={() => signOut()}>
+      <TouchableOpacity
+        style={styles.logoutRow}
+        onPress={async () => {
+          await signOut();
+        }}
+      >
         <Ionicons name="log-out-outline" size={24} color="#ff080c" />
         <Text style={styles.logoutText}>Log out</Text>
       </TouchableOpacity>
