@@ -1,5 +1,6 @@
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
 import CombineLayout from "@/components/Component";
+import { useAvatar } from "@/hooks/useAvatar";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { getUserById, updateUser } from "@/src/services/userService";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,6 +9,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -22,6 +24,7 @@ const EditProfileScreen = () => {
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
 
   const { user } = useContext(AuthContext);
+  const { avatarUri, pickImage, removeAvatar } = useAvatar(user.userId);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,6 +50,23 @@ const EditProfileScreen = () => {
       fetchUser();
     }
   }, [user.userId]);
+
+  const handleAvatarPress = () => {
+    Alert.alert("Thay đổi ảnh đại diện", "Chọn cách thay đổi ảnh đại diện", [
+      { text: "Hủy", style: "cancel" },
+      { text: "Chụp ảnh", onPress: () => pickImage("camera") },
+      { text: "Chọn từ thư viện", onPress: () => pickImage("gallery") },
+      ...(avatarUri
+        ? [
+            {
+              text: "Xóa ảnh",
+              onPress: removeAvatar,
+              style: "destructive" as const,
+            },
+          ]
+        : []),
+    ]);
+  };
 
   const handleSave = async () => {
     try {
@@ -82,11 +102,19 @@ const EditProfileScreen = () => {
         </View>
 
         <View style={styles.avatarWrapper}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {username?.charAt(0)?.toUpperCase() || "U"}
-            </Text>
-          </View>
+          <TouchableOpacity style={styles.avatar} onPress={handleAvatarPress}>
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>
+                {username?.charAt(0)?.toUpperCase() || "U"}
+              </Text>
+            )}
+            <View style={styles.cameraIcon}>
+              <Ionicons name="camera" size={12} color="#fff" />
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.avatarHint}>Nhấn để thay đổi ảnh</Text>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -168,11 +196,33 @@ const styles = StyleSheet.create({
     backgroundColor: "#fecc8c",
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 29,
   },
   avatarText: {
     fontSize: 24,
     fontWeight: "600",
     color: "#000",
+  },
+  cameraIcon: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: "#fe8300",
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarHint: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#666",
   },
   label: {
     fontSize: 16,

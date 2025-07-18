@@ -1,35 +1,41 @@
 import type { ProfileStackParamList } from "@/app/(tabs)/profile";
+import { useAvatar } from "@/hooks/useAvatar";
 import { AuthContext } from "@/src/contexts/AuthContext";
 import { getUserById } from "@/src/services/userService";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useContext, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const UserProfile = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const { signOut, user } = useContext(AuthContext);
+  const { avatarUri, loadAvatar } = useAvatar(user.userId);
 
   const [fullUser, setFullUser] = useState(user);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const data = await getUserById(user.userId);
-        setFullUser(data);
-      } catch (err) {
-        console.log("Không thể lấy thông tin user:", err);
+  // Fetch user info mỗi khi quay lại màn hình
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUser = async () => {
+        try {
+          const data = await getUserById(user.userId);
+          setFullUser(data);
+        } catch (err) {
+          console.log("Không thể lấy thông tin user:", err);
+        }
+      };
+      if (user.userId) {
+        fetchUser();
+        loadAvatar();
       }
-    };
-
-    if (user.userId) {
-      fetchUser();
-    }
-  }, [user.userId]);
+    }, [user.userId, loadAvatar])
+  );
 
   return (
     <View style={styles.wrapper}>
@@ -43,9 +49,16 @@ const UserProfile = () => {
           >
             <View style={styles.profileContainer}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {fullUser?.username?.charAt(0)?.toUpperCase() || "U"}
-                </Text>
+                {avatarUri ? (
+                  <Image
+                    source={{ uri: avatarUri }}
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <Text style={styles.avatarText}>
+                    {fullUser?.username?.charAt(0)?.toUpperCase() || "U"}
+                  </Text>
+                )}
               </View>
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>
@@ -113,11 +126,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 48,
   },
   avatarText: {
     fontSize: 40,
     color: "#000",
     fontWeight: "600",
+  },
+  cameraIcon: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: "#fe8300",
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
   },
   userInfo: {
     marginLeft: 20,

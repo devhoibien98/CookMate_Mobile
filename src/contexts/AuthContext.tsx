@@ -86,6 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("user");
     // Don't clear favorites - each user keeps their own favorites
+    // Don't clear avatar - each user keeps their own avatar
     setToken(null);
     setUser({
       userId: "",
