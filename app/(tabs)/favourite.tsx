@@ -1,6 +1,7 @@
 import CombineLayout from "@/components/Component";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useFilterState } from "@/hooks/useFilterState";
 import { FontAwesome } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useFocusEffect } from "@react-navigation/native";
@@ -40,21 +41,32 @@ const FavouriteScreen = () => {
     removeMultipleFavorites,
     refreshFavorites,
   } = useFavorites();
+
+  // Use the new filter state hook
+  const {
+    searchText,
+    setSearchText,
+    filterRating,
+    setFilterRating,
+    filterIngredients,
+    setFilterIngredients,
+    filterTime,
+    setFilterTime,
+    resetFilters,
+  } = useFilterState();
+
   const [selectedIds, setSelectedIds] = React.useState<(string | number)[]>([]);
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [showSearch, setShowSearch] = React.useState(false);
-  const [searchText, setSearchText] = React.useState("");
-  // Đảm bảo giá trị mặc định đúng kiểu
-  const [filterRating, setFilterRating] = React.useState(0); // số
-  const [filterIngredients, setFilterIngredients] = React.useState("all"); // chuỗi
-  const [filterTime, setFilterTime] = React.useState("all"); // all, 0-30, 30-60, >60
 
   useFocusEffect(
     React.useCallback(() => {
       setSelectedIds([]);
       setIsSelecting(false);
       refreshFavorites();
-    }, [refreshFavorites])
+      // Reset filters when returning to this tab
+      resetFilters();
+    }, [refreshFavorites, resetFilters])
   );
 
   // Toggle select for multi-delete
@@ -182,10 +194,7 @@ const FavouriteScreen = () => {
 
   // Hàm reset filter
   const resetFilter = () => {
-    setFilterRating(0);
-    setFilterIngredients("all");
-    setFilterTime("all");
-    setSearchText("");
+    resetFilters();
   };
 
   if (isLoading) {
